@@ -1,3 +1,0 @@
-<small>
-    {$message->title}
-</small>
