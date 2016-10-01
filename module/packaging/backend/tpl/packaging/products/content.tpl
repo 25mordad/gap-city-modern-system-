@@ -2,13 +2,8 @@
     <div class="col-xs-12">
         <div class="box">
             <div class="box-header">
-                <div style="padding-right: 20px" >
-                <div class="pull-right" style="padding-right: 20px">{get_user_name id_user=$packing->pg_title} 
-                {get_user_params id_user=$packing->pg_title name="55"}
-                    -
-                                {$getuser->username}</div> 
-                         <div class="pull-right" style="padding-right: 20px"> {$packing->pg_content}</div>
-                           <div class="pull-right"  style="padding-right: 20px">  {date("Y-m-d",strtotime($packing->date_modified))} /  {jdate("Y-m-d",strtotime($packing->date_modified))}</div>
+            <div >
+                    {include file="tpl/$part/$action/form.tpl"}
                 </div>
             </div><!-- /.box-header -->
             <div class="box-body table-responsive no-padding">

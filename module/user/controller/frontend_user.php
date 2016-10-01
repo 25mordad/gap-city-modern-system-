@@ -394,122 +394,137 @@ function register()
 		if(isset($_POST['email']))
 		{
 			require_once(__COREROOT__."/libs/utility/validating.php");
-			if(trim($_POST['capcha'])==""||trim($_POST['capcha'])!=$_SESSION['gcms_cpcha'])
-			{
-				$_SESSION['result']="کد تصویری را وارد نکرده‌اید و یا اشتباه وارد کرده‌اید";
+			
+			if(isset($_POST['g-recaptcha-response']))
+				$captcha=$_POST['g-recaptcha-response'];
+			
+			if(!$captcha){
+				$_SESSION['result']=" لطفا I'm not a robot را تایید کنید  ";
 				$_SESSION['alert']="warning";
+				
 			}
-			else if($_POST['password']=="")
+			
+			if($_POST['password']=="")
 			{
 				$_SESSION['result']="کلمه عبور را وارد نکرده‌اید";
 				$_SESSION['alert']="warning";
 			}
-			else if(!email_validation($_POST['email']))
+				
+			if(!email_validation($_POST['email']) )
 			{
-				$_SESSION['result']="آدرس ایمیل معتبر نیست";
+				$_SESSION['result']=" خطا در ورود اطلاعات ";
 				$_SESSION['alert']="warning";
 			}
-			else
+			
+			if($captcha)
 			{
-				//checking duplicate username & email...
-				if(!isset($_POST['username']))
-					$_POST['username']=$_POST['email'];
-				$chk_username=User::get(array("username" => $_POST['username']));
-				$chk_email=User::get(array("email" => $_POST['email']));
-				if(isset($chk_username))
+				$response=json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=".$GLOBALS['GCMS_SETTING']['general']['recaptcha']."&response=".$captcha."&remoteip=".$_SERVER['REMOTE_ADDR']), true);
+				if($response['success'] == false)
 				{
-					$_SESSION['result']="نام کاربری قبلا گرفته شده، لطفا نام کاربری دیگری انتخاب کنید";
+					$_SESSION['result']=" لطفا I'm not a robot را تایید کنید  ";
 					$_SESSION['alert']="warning";
-				}
-				else if(isset($chk_email))
-				{
-					$_SESSION['result']="آدرس ایمیل قبلا استفاده شده، لطفا ایمیل دیگری مشخص کنید";
-					$_SESSION['alert']="warning";
-				}
-				else
-				{
-					require_once(__COREROOT__."/libs/utility/hashing.php");
-					//adding user to db
-					$password_salt=saltit($_POST['email']);
-					$password=hashit($_POST['password'], $password_salt);
-					$arr_insert=array(
-							"username" => $_POST['username'],
-							"email" => $_POST['email'],
-							"temp_code" => "NULL",
-							"password" => $password,
-							"password_salt" => $password_salt,
-							"password_attempts_failed" => 0,
-							"status" => "active",
-							"user_level" => $_POST['userlevel'],
-							"added_id" => 0,
-							"date_created" => date("Y-m-d H:i:s")
-					);
-					if(User::insert($arr_insert))
+				}else{
+					//checking duplicate username & email...
+					if(!isset($_POST['username']))
+						$_POST['username']=$_POST['email'];
+					$chk_username=User::get(array("username" => $_POST['username']));
+					$chk_email=User::get(array("email" => $_POST['email']));
+					if(isset($chk_username))
 					{
-						$id_user=mysql_insert_id();
-						$param=$_POST['param'];
-						$id_param=key($param);
-						foreach($param as &$p_value)
-						{
-							$p_value=htmlspecialchars(trim($p_value), ENT_QUOTES);
-							$arr_new_meta=array(
-									"id_user" => $id_user,
-									"name" => "param_".$id_param,
-									"value" => $p_value,
-							);
-							MetaUser::insert($arr_new_meta);
-							$id_param=key($param);
-						}
-
-						//sending email...
-						$text_form="
-								کاربر گرامی ".$_POST['email']
-								." <br />
-										شما    در وب سایت ".$_SERVER['HTTP_HOST']
-										." عضو شدید <br />
-												شما می توانید از طریق اطلاعات  زیر وارد پروفایل کاربری خود شوید . <br />
-												آدرس ورود به کنترل پنل : ".$_SERVER['HTTP_HOST']
-												."/user <br />
-														نام کاربری : ".$_POST['username']."<br />
-																ایمیل : ".$_POST['email']."<br />
-																		کلمه عبور : ".$_POST['password']
-																		."<br />
-
-																				با تشکر
-																				";
-						$arr_email=array(
-								"from" => $GLOBALS['GCMS_SETTING']['general']['email'],
-								"to" => $_POST['email'],
-								"subject" => "به وب سایت ".$_SERVER['HTTP_HOST']." خوش آمدید.",
-								"text" => $text_form,
-								"sign" => "::ارسال شده توسط سیستم::",
-								"URL" => "آدرس سایت :: ".$_SERVER['HTTP_HOST'],
-						);
-						$sendmail=new Email();
-						$sendmail->set("html", true);
-						$sendmail->getParams($arr_email);
-						$sendmail->parseBody();
-						$sendmail->setHeaders();
-						$sendmail->send();
-
-                        //password ok. setting sessions...
-                        $_SESSION["glogin_username"]=$_POST['username'];
-                        $_SESSION["glogin_email"]=$_POST['email'];
-                        $_SESSION["glogin_user_level"]=$_POST['userlevel'];
-                        $_SESSION["glogin_user_id"]=$id_user;
-
-						$_SESSION['result']="ثبت‌نام با موفقیت انجام شد";
-						$_SESSION['alert']="success";
-						header("location: /user/dashboard");
-						return;
+						$_SESSION['result']="نام کاربری قبلا گرفته شده، لطفا نام کاربری دیگری انتخاب کنید";
+						$_SESSION['alert']="warning";
+					}
+					else if(isset($chk_email))
+					{
+						$_SESSION['result']="آدرس ایمیل قبلا استفاده شده، لطفا ایمیل دیگری مشخص کنید";
+						$_SESSION['alert']="warning";
 					}
 					else
 					{
-						$_SESSION['result']="مشکلی به وجود آمد، دوباره تلاش کنید";
-						$_SESSION['alert']="error";
+						require_once(__COREROOT__."/libs/utility/hashing.php");
+						//adding user to db
+						$password_salt=saltit($_POST['email']);
+						$password=hashit($_POST['password'], $password_salt);
+						$arr_insert=array(
+								"username" => $_POST['username'],
+								"email" => $_POST['email'],
+								"temp_code" => "NULL",
+								"password" => $password,
+								"password_salt" => $password_salt,
+								"password_attempts_failed" => 0,
+								"status" => "active",
+								"user_level" => $_POST['userlevel'],
+								"added_id" => 0,
+								"date_created" => date("Y-m-d H:i:s")
+						);
+						if(User::insert($arr_insert))
+						{
+							$id_user=mysql_insert_id();
+							$param=$_POST['param'];
+							$id_param=key($param);
+							foreach($param as &$p_value)
+							{
+								$p_value=htmlspecialchars(trim($p_value), ENT_QUOTES);
+								$arr_new_meta=array(
+										"id_user" => $id_user,
+										"name" => "param_".$id_param,
+										"value" => $p_value,
+								);
+								MetaUser::insert($arr_new_meta);
+								$id_param=key($param);
+							}
+	
+							//sending email...
+							$text_form="
+									کاربر گرامی ".$_POST['email']
+									." <br />
+											شما    در وب سایت ".$_SERVER['HTTP_HOST']
+											." عضو شدید <br />
+													شما می توانید از طریق اطلاعات  زیر وارد پروفایل کاربری خود شوید . <br />
+													آدرس ورود به کنترل پنل : ".$_SERVER['HTTP_HOST']
+													."/user <br />
+															نام کاربری : ".$_POST['username']."<br />
+																	ایمیل : ".$_POST['email']."<br />
+																			کلمه عبور : ".$_POST['password']
+																			."<br />
+	
+																					با تشکر
+																					";
+							$arr_email=array(
+									"from" => $GLOBALS['GCMS_SETTING']['general']['email'],
+									"to" => $_POST['email'],
+									"subject" => "به وب سایت ".$_SERVER['HTTP_HOST']." خوش آمدید.",
+									"text" => $text_form,
+									"sign" => "::ارسال شده توسط سیستم::",
+									"URL" => "آدرس سایت :: ".$_SERVER['HTTP_HOST'],
+							);
+							$sendmail=new Email();
+							$sendmail->set("html", true);
+							$sendmail->getParams($arr_email);
+							$sendmail->parseBody();
+							$sendmail->setHeaders();
+							$sendmail->send();
+	
+	                        //password ok. setting sessions...
+	                        $_SESSION["glogin_username"]=$_POST['username'];
+	                        $_SESSION["glogin_email"]=$_POST['email'];
+	                        $_SESSION["glogin_user_level"]=$_POST['userlevel'];
+	                        $_SESSION["glogin_user_id"]=$id_user;
+	
+							$_SESSION['result']="ثبت‌نام با موفقیت انجام شد";
+							$_SESSION['alert']="success";
+							header("location: /user/dashboard");
+							return;
+						}
+						else
+						{
+							$_SESSION['result']="مشکلی به وجود آمد، دوباره تلاش کنید";
+							$_SESSION['alert']="error";
+						}
 					}
 				}
 			}
+			
 			header("location: /register");
 		}
 	}
