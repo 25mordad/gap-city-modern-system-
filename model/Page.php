@@ -46,7 +46,7 @@ class Page
 						%n,
 						%n,
 						%n,
-						%n,
+						%i,
 						%i,
 						%n,
 						%n
@@ -128,7 +128,7 @@ class Page
 						[ AND `pg_status` = %N ]
 						[ AND `pg_status` != %N ]
 						[ AND `comment_status` = %N ]
-						[ AND `pg_order` = %N ]
+						[ AND `pg_order` = %I ]
 						[ AND `author_id` = %I ]
 						[ AND `date_created` = %N ]
 						[ AND `date_modified` = %N ]
@@ -188,7 +188,7 @@ class Page
 						[ AND `pg_status` = %N ]
 						[ AND `pg_status` != %N ]
 						[ AND `comment_status` = %N ]
-						[ AND `pg_order` = %N ]
+						[ AND `pg_order` = %I ]
 						[ AND `author_id` = %I ]
 						[ AND `date_created` = %N ]
 						[ AND `date_modified` = %N ]

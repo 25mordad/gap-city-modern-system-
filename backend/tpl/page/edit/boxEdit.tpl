@@ -13,7 +13,7 @@
         <div class="clearfix" ></div>
         <div class="row" >
             <div class="col-md-6" >
-                <a href="/page/show/{$page->id}/{changetoplus title =$page->pg_title}" class="text-aqua "  target="_blank"  ><i class="glyphicon glyphicon-new-window fontSize9" ></i>
+                <a href="/page/show/{$page->id}/title+ {changetoplus title =$page->pg_title}" class="text-aqua "  target="_blank"  ><i class="glyphicon glyphicon-new-window fontSize9" ></i>
                     <small class="fontSize9">لینک صفحه در سایت</small></a>
             </div>
             <div class="col-md-6" >
