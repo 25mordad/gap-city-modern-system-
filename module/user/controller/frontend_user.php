@@ -476,26 +476,30 @@ function register()
 	
 							//sending email...
 							$text_form="
+									<html><body style='text-align:right; direction:rtl;' dir='rtl'>
 									کاربر گرامی ".$_POST['email']
 									." <br />
-											شما    در وب سایت ".$_SERVER['HTTP_HOST']
+											شما    در وب سایت ". $GLOBALS['GCMS_SETTING']['seo']['title']
+											. " "
+											. "http://".$_SERVER['HTTP_HOST']
 											." عضو شدید <br />
 													شما می توانید از طریق اطلاعات  زیر وارد پروفایل کاربری خود شوید . <br />
-													آدرس ورود به کنترل پنل : ".$_SERVER['HTTP_HOST']
+													آدرس ورود به کنترل پنل : " ."http://".$_SERVER['HTTP_HOST']
 													."/user <br />
 															نام کاربری : ".$_POST['username']."<br />
-																	ایمیل : ".$_POST['email']."<br />
 																			کلمه عبور : ".$_POST['password']
 																			."<br />
 	
 																					با تشکر
+										
+																					</body></html>
 																					";
 							$arr_email=array(
 									"from" => $GLOBALS['GCMS_SETTING']['general']['email'],
 									"to" => $_POST['email'],
-									"subject" => "به وب سایت ".$_SERVER['HTTP_HOST']." خوش آمدید.",
+									"subject" => "به وب سایت ".$GLOBALS['GCMS_SETTING']['seo']['title']." خوش آمدید.",
 									"text" => $text_form,
-									"sign" => "::ارسال شده توسط سیستم::",
+									"sign" => "::ارسال خودکار توسط سیستم::",
 									"URL" => "آدرس سایت :: ".$_SERVER['HTTP_HOST'],
 							);
 							$sendmail=new Email();
@@ -511,7 +515,7 @@ function register()
 	                        $_SESSION["glogin_user_level"]=$_POST['userlevel'];
 	                        $_SESSION["glogin_user_id"]=$id_user;
 	
-							$_SESSION['result']="ثبت‌نام با موفقیت انجام شد";
+							$_SESSION['result']="ثبت‌نام با موفقیت انجام شد. لطفا صندوق ایمیل خود را بررسی کنید. در برخی از موارد ممکن است ایمیل ارسالی به پوشه اسپم وارد شود با قرار دادن آدرس ایمیل  ".$GLOBALS['GCMS_SETTING']['general']['email']." در بخش آدرس‌های کانتکت و یا دفترچه آدرس ایمیل، می‌توانید از ارسال ایمیل‌ها به اینباکس اطمینان حاصل کنید.";
 							$_SESSION['alert']="success";
 							header("location: /user/dashboard");
 							return;

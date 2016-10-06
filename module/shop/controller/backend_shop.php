@@ -451,6 +451,9 @@ function importFromBershka($id){
 function importFromMango($id){
 	require_once("importFromMango.php");
 }
+function importFromStradivarius($id){
+	require_once("importFromStradivarius.php");
+}
 function importFromMangooutlet($id){
 	require_once("importFromMangooutlet.php");
 }
@@ -460,157 +463,7 @@ function importFromZara($id){
 }
 
 function importFromMroozi($id){
-	$product=Products::get(array("id" => $id));
-	$GLOBALS['GCMS']->assign('product', $product);
-	$GLOBALS['GCMS']->assign('brands', $page=Page::get(array("pg_type" => "brand", "pg_status" => "publish"),true));
-	$GLOBALS['GCMS']->assign('colors', $page=Page::get(array("pg_type" => "color", "pg_status" => "publish"),true));
-	$GLOBALS['GCMS']->assign('sizes', $GLOBALS['GCMS_DB']->get_results("SELECT DISTINCT pg_excerpt as sizes FROM `gcms_page` WHERE pg_type='size' "));
-	
-	require_once(__COREROOT__."/libs/simple_html_dom/simple_html_dom.php");
-	// Create DOM from URL or file
-	$html = file_get_html($product->link);
-	
-	if ($_GET['step'] == "images" ){
-		$allImages = $html->find('img');
-		
-		$GLOBALS['GCMS']->assign('allImages', $allImages);
-		
-	}
-	
-	if ($_GET['step'] == "title" ){
-			
-		foreach($html->find('h1') as $header) {
-		 $headlines[] = $header->plaintext;
-		}
-
-		foreach ($html->find('div[itemprop=description]') as $description) {
-			$Description[] = $description->plaintext;
-		}
-		foreach ($html->find('span[itemprop=brand]') as $brands) {
-			$Brand[] = $brands->plaintext;
-		}
-		foreach ($html->find('span[class=woocommerce-Price-amount]') as $price) {
-			$Price[] = $price->plaintext;
-		}
-		foreach ($html->find('span[class=pro_price_extra_info]') as $priceeu) {
-			$Priceeu[] = $priceeu->plaintext;
-		}
-		$GLOBALS['GCMS']->assign('brand', $Brand);
-		$GLOBALS['GCMS']->assign('description', $Description);
-		$GLOBALS['GCMS']->assign('headlines', $headlines);
-		$GLOBALS['GCMS']->assign('price', $Price);
-		$GLOBALS['GCMS']->assign('priceeu', $Priceeu);
-		
-	}
-	
-	if ($_GET['step'] == "size" ){
-		if (isset($_GET['delsize']))
-		{
-			$arr_update=array(
-					"id" => $id,
-					"size" => str_replace($_GET['delsize']."|", "", $product->size),
-			);
-			Products::update($arr_update);
-			
-		}else {
-			$arr_update=array(
-					"id" => $id,
-					"fa_title" => stripcslashes($_POST['fa_title']),
-					"en_title" => stripcslashes($_POST['en_title']),
-					"en_txt" => stripcslashes($_POST['en_txt']),
-					"fa_txt" => stripcslashes($_POST['fa_txt']),
-					"price" => $_POST['price'],
-					"salse1_price" => $_POST['salse1_price'],
-					"real_price" => $_POST['real_price'],
-					"buy_price" => "0",
-					"sales2_price" => "0",
-					"min_price" => "0",
-					"status" => "publish",
-					"show_real_price" => "false",
-					"brand" => $_POST['brand'],
-			);
-			Products::update($arr_update);
-		}
-		
-		
-		foreach ($html->find('#pa_size') as $sizes) {
-			$MrooziSizes[] = $sizes->innertext;
-		}
-		$GLOBALS['GCMS']->assign('MrooziSizes', $MrooziSizes);
-		
-		foreach ($html->find('#pa_color') as $colors) {
-			$MrooziColors[] = $colors->innertext;
-		}
-		$GLOBALS['GCMS']->assign('MrooziColors', $MrooziColors);
-
-		foreach ($html->find('span[class=posted_in]') as $posted_in) {
-			$postedin[] = $posted_in->plaintext;
-		}
-		$postedinArr = explode(",",trim(str_replace("دسته:","",$postedin[0])));
-		foreach ($postedinArr as $pa)
-		{
-			$chk_keyword=KeywordProduct::get(array("kw_title" => trim($pa)));
-			if(isset($chk_keyword))
-			{
-				$key_id=$chk_keyword->id;
-			}
-			else
-			{
-				KeywordProduct::insert(array("kw_title" => trim($pa)));
-				$key_id=mysqli_insert_id();
-			}
-			$chk_rel=RelKeywordProduct::get(
-					array("key_id" => $key_id, "product_id" => $id));
-			if(isset($chk_rel))
-			{
-				$rel_id=$chk_rel->id;
-			}
-			else
-			{
-				RelKeywordProduct::insert(array("key_id" => $key_id, "product_id" => $id));
-				$rel_id=mysqli_insert_id();
-			}
-			
-		}
-		
-		$GLOBALS['GCMS']->assign('postedin', $postedinArr);
-		
-		
-		foreach ($html->find('span[class=tagged_as]') as $tagged_as) {
-			$taggedas[] = $tagged_as->plaintext;
-		}
-		$taggedasArr = explode(",",trim(str_replace("برچسب:","",$taggedas[0])));
-		foreach ($taggedasArr as $pa)
-		{
-			$chk_keyword=KeywordProduct::get(array("kw_title" => trim($pa)));
-			if(isset($chk_keyword))
-			{
-				$key_id=$chk_keyword->id;
-			}
-			else
-			{
-				KeywordProduct::insert(array("kw_title" => trim($pa)));
-				$key_id=mysqli_insert_id();
-			}
-			$chk_rel=RelKeywordProduct::get(
-					array("key_id" => $key_id, "product_id" => $id));
-			if(isset($chk_rel))
-			{
-				$rel_id=$chk_rel->id;
-			}
-			else
-			{
-				RelKeywordProduct::insert(array("key_id" => $key_id, "product_id" => $id));
-				$rel_id=mysqli_insert_id();
-			}
-				
-		}
-		$GLOBALS['GCMS']->assign('taggedas', $taggedasArr);
-		
-		
-	}
-	
-
+	require_once("importFromMroozi.php");
 }
 
 function new_shop()
@@ -621,11 +474,11 @@ function new_shop()
 		{
 			$arr_insert=array(
 					"group_id" => $_POST['group_id'],
-					"delivery_time"   => "30",
+					"delivery_time"   => "21",
 					"p_order"   => "0",
 					"visitor"   => "0",
 					"quantity"   => "1",
-					"show_real_price"   => "true",
+					"show_real_price"   => "false",
 					"show_sales_price"   => "none",
 					"price"   => "0",
 					"salse1_price"   => "0",
@@ -771,6 +624,37 @@ function new_shop()
 			$_SESSION['result']="محصول جدید ایجاد شد";
 			$_SESSION['alert']="success";
 			header("location: /gadmin/shop/importFromBershka/".$lastId."?step=images");
+		}
+		if ($_POST['type'] == "stradivarius")
+		{
+			$arr_insert=array(
+					"group_id" => $_POST['group_id'],
+					"brand"   => "300",
+					"delivery_time"   => "21",
+					"p_order"   => "0",
+					"visitor"   => "0",
+					"quantity"   => "1",
+					"show_real_price"   => "false",
+					"show_sales_price"   => "none",
+					"price"   => "0",
+					"salse1_price"   => "0",
+					"salse2_price"   => "0",
+					"min_price"   => "0",
+					"update_check"   => "false",
+					"link"   => trim($_POST['link']),
+					"default_photo"   => "0",
+					"status"   => "pending"
+			);
+			$lastId = Products::insert($arr_insert);
+			$pbar =$lastId + 10000;
+			$arr_update=array(
+					"id" => $lastId,
+					"barcode" => $_POST['barcode']."/".$pbar,
+			);
+			Products::update($arr_update);
+			$_SESSION['result']="محصول جدید ایجاد شد";
+			$_SESSION['alert']="success";
+			header("location: /gadmin/shop/importFromStradivarius/".$lastId."?step=images");
 		}
 		
 	}
