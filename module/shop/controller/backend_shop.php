@@ -667,7 +667,7 @@ function new_shop()
 					"p_order"   => "0",
 					"visitor"   => "0",
 					"quantity"   => "1",
-					"show_real_price"   => "true",
+					"show_real_price"   => "false",
 					"show_sales_price"   => "none",
 					"price"   => "0",
 					"salse1_price"   => "0",

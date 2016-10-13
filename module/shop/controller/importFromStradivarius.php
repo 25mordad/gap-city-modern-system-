@@ -19,38 +19,55 @@ if ($_GET['step'] == "images" ){
 			
 	}
 
-	$allImages = $html->find('img[id=tableFoto]');
-	
+	$metaprop = $html->find('meta[property=og:image]');
+	$FirstAddress = $metaprop[0]->content;
+	$FirstAddress = explode("?", $FirstAddress);
+	$image1 = trim(str_replace("_1_1_3","_1_1_1",$FirstAddress[0]));
+	$image2 = trim(str_replace("_1_1_","_2_1_",$image1));
+	$allImages[] = $image1;
+	$allImages[] = $image2;
+	for ($i=2; $i<11 ; $i++){
+		$imi = trim(str_replace("_2_1_1","_2_".$i."_1",$image2));
+		if (getimagesize($imi) !== false) {
+			$allImages[] = $imi;
+		}
+		
+	}
 	$GLOBALS['GCMS']->assign('allImages', $allImages);
 }
 
 if ($_GET['step'] == "title" ){
 		
-	foreach($html->find('div[class=nombreProducto]') as $header) {
+	foreach($html->find('span[class=itemName]') as $header) {
 		$headlines[] = $header->plaintext;
 	}
 
-	foreach ($html->find('div[id=collapseOne]') as $description) {
+	foreach ($html->find('div[class=careDetails]') as $description) {
 		$Description[] = $description->plaintext;
 	}
 
-	foreach ($html->find('div[class=referenciaProducto]') as $reference) {
-		$Reference[] = $reference->plaintext;
-	}
-	$ReferenceMango =  explode(" ",$Reference[0]);
+	$metaprop = $html->find('meta[property=og:image]');
+	$FirstAddress = $metaprop[0]->content;
+	$FirstAddress = explode("?", $FirstAddress);
+	$FirstAddressArr = explode("/", $FirstAddress[0]);
+	$ref1 = explode("_1_1_", end($FirstAddressArr));
+	$reference =  substr($ref1[0], 0, 7);
  
- 	foreach ($html->find('span[itemprop=price]') as $prices) {
-		$Prices[] = $prices->plaintext;
+	
+	$scrptTxt = "";
+	foreach ($html->find('script') as $scrpt) {
+		$scrptTxt = $scrptTxt.$scrpt;
 	}
-	$realPrice = ceil(trim(str_replace(" ","",str_replace("€","",str_replace(",",".",$Prices[0])))));
+	$pArr = explode('"price":"', $scrptTxt);
+	$pArr = explode('",', $pArr[1]);
 	
+	$realPrice =  ceil($pArr[0]) ;
 	
-	$GLOBALS['GCMS']->assign('brand', $Brand);
-	$GLOBALS['GCMS']->assign('description', $Description);
+	$GLOBALS['GCMS']->assign('description', "");
 	$GLOBALS['GCMS']->assign('headlines', $headlines);
 	$GLOBALS['GCMS']->assign('realPrice', $realPrice);
 	$GLOBALS['GCMS']->assign('buyPrice', $realPrice);
-	$GLOBALS['GCMS']->assign('reference', trim($ReferenceMango[2]));
+	$GLOBALS['GCMS']->assign('reference', $reference);
 
 }
 
@@ -116,7 +133,7 @@ $scrptTxt = "";
 				"color" =>$updColor,
 		);
 		Products::update($arr_update);
-		header("location: /gadmin/shop/importFromMango/$id?step=price");
+		header("location: /gadmin/shop/importFromStradivarius/$id?step=price");
 	}
 
 

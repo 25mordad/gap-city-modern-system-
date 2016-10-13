@@ -36,6 +36,17 @@ function smarty_function_getProduct($params, &$smarty)
  * UTILITY
  *
  */
+function smarty_function_getProductShop($params, &$smarty)
+{
+	//$params['id']
+	$arr_get=array(
+			"id" => $params['id']
+	);
+
+	$GLOBALS['GCMS']
+	->assign('getProduct',
+			Products::get($arr_get, false));
+}
 /* function select_product_parental($pg_type = "page", $id_not = "")
 {
 	$arr_get=array(

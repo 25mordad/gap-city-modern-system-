@@ -158,6 +158,23 @@ function show($id)
 	$product=Products::get(array("id" => $id , "status" => "publish"));
 	if(isset($id)&&isset($product))
 	{
+		
+		if (isset($_GET['addToBasket'])){
+			
+			if(is_array($_SESSION['gcmsCart'])){
+				$max=count($_SESSION['gcmsCart']);
+					$_SESSION['gcmsCart'][$max+1]['productId']=$id;
+					$_SESSION['gcmsCart'][$max+1]['productId']=$id;
+					$_SESSION['gcmsCart'][$max+1]['color']=$_GET['color'];
+					$_SESSION['gcmsCart'][$max+1]['size']=$_GET['size'];
+			}else{
+				$_SESSION['gcmsCart']=array();
+				$_SESSION['gcmsCart'][0]['productId']=$id;
+				$_SESSION['gcmsCart'][0]['color']=$_GET['color'];
+				$_SESSION['gcmsCart'][0]['size']=$_GET['size'];
+			}
+			header("location: /shop/show/".$id);
+		}
 
 		$GLOBALS['GCMS']
 				->assign('gcms_page_title',
@@ -265,59 +282,8 @@ function search()
 	$GLOBALS['GCMS']->assign('finds', "false");
 }
 
-function addToBasket($id)
+function cart()
 {
-    if (isset($id))
-    {
-        $page=Products::get(array("id" => $id, "status" => "publish"));
-        if (!isset($_GET['q']) or $_GET['q']<0)
-            $_GET['q']=1;
-        if(isset($id)&&isset($page))
-        {
-            if(is_array($_SESSION['gcmsCart'])){
-                $max=count($_SESSION['gcmsCart']);
-                $addflag = false;
-                for($i=0;$i<$max;$i++){
-                    if($id==$_SESSION['gcmsCart'][$i]['productId']){
-                        $_SESSION['gcmsCart'][$i]['productId']=$id;
-                        $_SESSION['gcmsCart'][$i]['qty']=$_SESSION['gcmsCart'][$i]['qty']+$_GET['q'];
-                        $addflag=true;
-                    }
-                }
-                if (!$addflag)
-                {
-                    $_SESSION['gcmsCart'][$max]['productId']=$id;
-                    $_SESSION['gcmsCart'][$max]['qty']=$_GET['q'];
-                }
+    
 
-            }
-            else{
-                $_SESSION['gcmsCart']=array();
-                $_SESSION['gcmsCart'][0]['productId']=$id;
-                $_SESSION['gcmsCart'][0]['qty']=$_GET['q'];
-            }
-            header("location: /product/addToBasket/");
-        }
-        else
-            header("location: /error404?error=product&reason=product_not_exist");
-    }
-
-}
-function removeFromBasket($id){
-    $id=intval($id);
-    $max=count($_SESSION['gcmsCart']);
-    for($i=0;$i<$max;$i++){
-        if($id==$_SESSION['gcmsCart'][$i]['productId']){
-            unset($_SESSION['gcmsCart'][$i]);
-            break;
-        }
-    }
-    $_SESSION['gcmsCart']=array_values($_SESSION['gcmsCart']);
-    header("location: /product/addToBasket/");
-}
-function shop (){
-    if(is_array($_SESSION['gcmsCart'])){
-
-    }else
-        header("location: /product/addToBasket/");
 }

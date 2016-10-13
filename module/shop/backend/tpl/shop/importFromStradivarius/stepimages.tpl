@@ -9,11 +9,8 @@
 	<div class="row" style="font-family: tahoma" >
 	<div id="answersImage" style="margin: 5px;padding: 5px;background: #ffccff;position:fixed; top:20%; left:0;width:40%; height: 200px;overflow: auto;"></div>
 		{foreach $allImages as $img}
-		{$im = explode("'",$img->onclick)}
-		{$imgmango = explode("?",$im[3])}
-		
-			<img width="100"  src="{$imgmango[0]}" onclick="add_image('{$imgmango[0]}');show_image();"><br>
-			<span onclick="add_image('{$imgmango[0]}');show_image();" style="background:blue;cursor:pointer" >{$imgmango[0]}</span><br> 
+			<img width="100"  src="{$img}" onclick="add_image('{$img}');show_image();"><br>
+			<span onclick="add_image('{$img}');show_image();" style="background:blue;cursor:pointer" >{$img}</span><br> 
 			 
 		{/foreach}
 		<script >

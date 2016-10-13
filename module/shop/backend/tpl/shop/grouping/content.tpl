@@ -82,6 +82,7 @@
                                             +"<label class='col-md-12'><input type='radio' name='type' value='mangooutlet'>Mango Outlet</label>"
                                             +"<label class='col-md-6'><input type='radio' name='type' value='mango'>Mango</label>"
                                             +"<label class='col-md-6'><input type='radio' name='type' value='zara'>Zara</label> "
+                                            +"<label class='col-md-12'><input type='radio' name='type' value='stradivarius'>Stradivarius</label> "
                                             +"<label class='col-md-6'><input type='radio' name='type' value='mroozi'>Mroozi</label> "
                                             +"</div><span class='input-group-btn' > <button type='submit' class='btn btn-primary btn-flat'> ایجاد محصول جدید </button> </span><input type='hidden' name='group_id' value='{$group->id}' ><input type='hidden' name='barcode' value='{$group->pg_excerpt}' ></form> </div>"
                                             +"</div></div>"

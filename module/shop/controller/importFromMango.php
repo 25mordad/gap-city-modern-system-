@@ -44,12 +44,20 @@ if ($_GET['step'] == "title" ){
 	}
 	$realPrice = ceil(trim(str_replace(" ","",str_replace("€","",str_replace(",",".",$Prices[0])))));
 	
+ 	foreach ($html->find('span[itemprop=price]') as $prices) {
+		$Prices2[] = $prices->plaintext;
+	}
+	$Prices2Array = explode("€", $Prices2[0]);
+	$buyPrice = ceil(trim(str_replace(" ","",str_replace("€","",str_replace(",",".",$Prices2Array[1])))));
+	if ($buyPrice == "0"){
+		$buyPrice = $realPrice;
+	}
 	
 	$GLOBALS['GCMS']->assign('brand', $Brand);
 	$GLOBALS['GCMS']->assign('description', $Description);
 	$GLOBALS['GCMS']->assign('headlines', $headlines);
 	$GLOBALS['GCMS']->assign('realPrice', $realPrice);
-	$GLOBALS['GCMS']->assign('buyPrice', $realPrice);
+	$GLOBALS['GCMS']->assign('buyPrice', $buyPrice);
 	$GLOBALS['GCMS']->assign('reference', trim($ReferenceMango[2]));
 
 }
