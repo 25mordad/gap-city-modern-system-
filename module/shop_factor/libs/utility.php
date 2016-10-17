@@ -27,6 +27,12 @@ function smarty_function_get_factor_row($params, &$smarty)
                 "id_shop_factor" => $params['id_shop_factor']
     ),true));
 }
+function smarty_function_setSessionFeeandDiscount($params, &$smarty)
+{
+	//$params['fee'] //$params['discount']
+	$_SESSION['sumShopFee']     = $params['fee'];
+	$_SESSION['sumDiscountFee'] = $params['discount'];
+}
 /**
  * 
  * UTILITY

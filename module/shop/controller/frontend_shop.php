@@ -160,19 +160,35 @@ function show($id)
 	{
 		
 		if (isset($_GET['addToBasket'])){
-			
+			if ($product->show_sales_price == "sales1"){
+				$discount = $product->price - $product->salse1_price;
+			}
+			if ($product->show_sales_price == "sales2"){
+				$discount = $product->price - $product->sales2_price;
+			}
+			if ($product->show_sales_price == "min"){
+				$discount = $product->price - $product->min_price;
+			}
+			if ($product->show_sales_price == "none"){
+				$discount = 0;
+			}
 			if(is_array($_SESSION['gcmsCart'])){
 				$max=count($_SESSION['gcmsCart']);
-					$_SESSION['gcmsCart'][$max+1]['productId']=$id;
-					$_SESSION['gcmsCart'][$max+1]['productId']=$id;
-					$_SESSION['gcmsCart'][$max+1]['color']=$_GET['color'];
-					$_SESSION['gcmsCart'][$max+1]['size']=$_GET['size'];
+					$_SESSION['gcmsCart'][$max]['productId']=$id;
+					$_SESSION['gcmsCart'][$max]['color']=$_GET['color'];
+					$_SESSION['gcmsCart'][$max]['size']=$_GET['size'];
+					$_SESSION['gcmsCart'][$max]['price']=$product->price;
+					$_SESSION['gcmsCart'][$max]['discount']=$discount;
 			}else{
 				$_SESSION['gcmsCart']=array();
 				$_SESSION['gcmsCart'][0]['productId']=$id;
 				$_SESSION['gcmsCart'][0]['color']=$_GET['color'];
 				$_SESSION['gcmsCart'][0]['size']=$_GET['size'];
+				$_SESSION['gcmsCart'][0]['price']=$product->price;
+				$_SESSION['gcmsCart'][0]['discount']=$discount;
 			}
+			$_SESSION['result']=" محصول با موفقیت به سبد خرید اضافه شد.";
+			$_SESSION['alert']="success";
 			header("location: /shop/show/".$id);
 		}
 
@@ -284,6 +300,32 @@ function search()
 
 function cart()
 {
-    
-
+	//unset($_SESSION['gcmsCart']);
+	if (isset($_GET['del'])){
+		$id=intval($_GET['del']);
+		$max=count($_SESSION['gcmsCart']);
+		for($i=0;$i<$max;$i++){
+			if($id==$_SESSION['gcmsCart'][$i]['productId']){
+				unset($_SESSION['gcmsCart'][$i]);
+				break;
+			}
+		}
+		$_SESSION['gcmsCart']=array_values($_SESSION['gcmsCart']);
+		header("location: /shop/cart");
+		
+	}
 }
+
+function  checkout()
+{
+	if(isset($_SESSION["glogin_username"]))
+	{
+		
+	}else
+		header("location: /user?redirect=".$_SERVER["REQUEST_URI"]);
+	
+}
+
+
+
+

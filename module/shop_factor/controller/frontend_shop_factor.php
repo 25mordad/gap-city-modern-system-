@@ -65,6 +65,62 @@ function index()
             }
 
         }
+        if (isset($_GET['step']) and isset($_POST['name']) and isset($_SESSION['sumShopFee']))
+        {
+
+            $array_insert = array(
+                "id_user"    => $_SESSION["glogin_user_id"] ,
+                "address"    => $_POST['province'] . " - " . $_POST['city'] . " - " . $_POST['address'] . " - "
+            		."موبایل:‌" .$_POST['mobile'] . " تلفن: " . $_POST['tell'],
+                "zipcode"    => $_POST['zipcode'] ,
+                "name"       => $_POST['name'] ,
+                "text"       => $_POST['text'] ,
+                "status_pay" => "pending",
+                "status"     => "step1",
+                "date"       => date("Y-m-d H:i:s"),
+                "fee"        => $_SESSION['sumShopFee'] ,
+                "distinct"   => $_SESSION['sumDiscountFee'] ,
+                "delivery"   => $_POST['delivery']
+            );
+            unset($_SESSION['sumShopFee']);
+            unset($_SESSION['sumDiscountFee']);
+            ShopFactor::insert($array_insert);
+            $id_shop_factor = mysql_insert_id();
+            $gcmsCart       = $_SESSION['gcmsCart'];
+            foreach ($gcmsCart as $prow )
+            {
+
+                $arr_get = array("id" => $prow['productId']);
+                $product = Products::get($arr_get, false);
+
+                if (1 > $product->quantity)
+                {
+                    header("location: /error404?error=shop_factor&reason=count");
+                    die();
+                }else{
+                    //
+                    Products::update(array("id"=>$product->id,"quantity"=>$product->quantity-1));
+
+                    $array_insert2  =  array(
+                        "id_shop_factor"   => $id_shop_factor,
+                        "name"             => "[id=$product->id][title=$product->fa_title][size=".$prow['size']."] [color=".$prow['color']."]" ,
+                        "fee"              => $prow['price'] ,
+                        "number"           => "1" ,
+                        "distinct"         => $prow['discount']
+                    );
+                    ShopFcrelpro::insert($array_insert2);
+                }
+
+
+
+            }
+
+            unset($_SESSION['gcmsCart']);
+
+            zarinType($price," Payment:FactorId=".$id_shop_factor,$id_shop_factor);
+
+        }
+
         if (isset($_GET['final']) and isset($_POST['shopfactor']))
         {
 
@@ -139,13 +195,42 @@ function zarinType($amount,$txt,$id_shop_factor)
 
     Pays::insert($arr_insert);
     $orderId=mysql_insert_id();
-    $amount="$amount";
     $site_url= "http://".$_SERVER['SERVER_NAME'];
     require_once(__COREROOT__."/libs/utility/hashing.php");
-    $callBackUrl=$site_url.'/shop_factor/?back=true&id='.rndstring(90).'&orderId='.$orderId.'&amount='.$amount.'&idshfac='.$id_shop_factor;
-    $client=new SoapClient('http://www.zarinpal.com/WebserviceGateway/wsdl', array( 'encoding' => 'UTF-8'  ));
-    $res=$client->PaymentRequest($merchantID, $amount, $callBackUrl, urlencode($_SESSION["glogin_username"]." ".$txt));
-    header('Location: https://www.zarinpal.com/users/pay_invoice/'.$res);
+    $CallbackURL=$site_url."/pays/back/".$orderId."?&type=zarin&id=".rndstring(90)."&id_user=".$_SESSION["glogin_user_id"]."&amount=".$amount;
+    
+    
+    
+    $client = new SoapClient('https://www.zarinpal.com/pg/services/WebGate/wsdl', ['encoding' => 'UTF-8']);
+    
+    $result = $client->PaymentRequest(
+    		[
+    				'MerchantID' => $merchantID,
+    				'Amount' => $amount,
+    				'Description' => urlencode($_SESSION["glogin_username"]) ,
+    				'Email' => $Email,
+    				'Mobile' => $Mobile,
+    				'CallbackURL' => $CallbackURL,
+    		]
+    		);
+    
+    
+    $result = $client->PaymentRequest(
+    		array(
+    				'MerchantID' 	=> $merchantID,
+    				'Amount' 	=> $amount,
+    				'Description' 	=> urlencode($_SESSION["glogin_username"]." ".$txt),
+    				'Email' 	=> $_SESSION["glogin_username"],
+    				'Mobile' 	=> "",
+    				'CallbackURL' 	=> $callBackUrl
+    		)
+    		);
+    
+	if ($result->Status == 100) {
+	Header('Location: https://www.zarinpal.com/pg/StartPay/'.$result->Authority);
+	} else {
+	echo'ERR: '.$result->Status;
+	}
 }
 
 function my ()
