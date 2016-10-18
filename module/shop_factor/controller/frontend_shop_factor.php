@@ -82,8 +82,7 @@ function index()
                 "distinct"   => $_SESSION['sumDiscountFee'] ,
                 "delivery"   => $_POST['delivery']
             );
-            unset($_SESSION['sumShopFee']);
-            unset($_SESSION['sumDiscountFee']);
+            
             ShopFactor::insert($array_insert);
             $id_shop_factor = mysql_insert_id();
             $gcmsCart       = $_SESSION['gcmsCart'];
@@ -114,10 +113,12 @@ function index()
 
 
             }
-
+            
+            zarinType($_SESSION['sumShopFee']," Payment:FactorId=".$id_shop_factor,$id_shop_factor);
             unset($_SESSION['gcmsCart']);
-
-            zarinType($price," Payment:FactorId=".$id_shop_factor,$id_shop_factor);
+            unset($_SESSION['sumShopFee']);
+            unset($_SESSION['sumDiscountFee']);
+            
 
         }
 
@@ -198,11 +199,7 @@ function zarinType($amount,$txt,$id_shop_factor)
     $site_url= "http://".$_SERVER['SERVER_NAME'];
     require_once(__COREROOT__."/libs/utility/hashing.php");
     $CallbackURL=$site_url."/pays/back/".$orderId."?&type=zarin&id=".rndstring(90)."&id_user=".$_SESSION["glogin_user_id"]."&amount=".$amount;
-    
-    
-    
     $client = new SoapClient('https://www.zarinpal.com/pg/services/WebGate/wsdl', ['encoding' => 'UTF-8']);
-    
     $result = $client->PaymentRequest(
     		[
     				'MerchantID' => $merchantID,
@@ -227,9 +224,11 @@ function zarinType($amount,$txt,$id_shop_factor)
     		);
     
 	if ($result->Status == 100) {
-	Header('Location: https://www.zarinpal.com/pg/StartPay/'.$result->Authority);
+		Header('Location: https://www.zarinpal.com/pg/StartPay/'.$result->Authority);
 	} else {
-	echo'ERR: '.$result->Status;
+		$_SESSION['result']=" یک چیزی یه‌جایی اشتباه شده.  ". 'ERR: '.$result->Status;
+		$_SESSION['alert']="danger";
+		header("location: /user/dashboard");
 	}
 }
 

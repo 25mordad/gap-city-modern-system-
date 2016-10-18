@@ -138,8 +138,6 @@ function zarinType($amount,$txt)
 	} else {
 		echo'ERR: '.$result->Status;
 	}
-    //$res=$client->PaymentRequest($merchantID, $amount/10, $callBackUrl, urlencode($_SESSION["glogin_username"]." ".$txt));
-    //header('Location: https://www.zarinpal.com/users/pay_invoice/'.$res);
 }
 function zarinBack($id)
 {
@@ -151,16 +149,21 @@ function zarinBack($id)
         $_SESSION['alert']="error";
         header("location: /pays/list");
     }
+    $Authority = $_GET['Authority'];
     if($_GET['Status'] == 'OK')
     {
-        $client = new SoapClient('https://de.zarinpal.com/pg/services/WebGate/wsdl', array('encoding' => 'UTF-8')); 
-        $result = $client->PaymentVerification(
-						  	array(
-									'MerchantID'	 => $merchantID,
-									'Authority' 	 => $_GET['Authority'],
-									'Amount'	 => $pay->amount /10
-								)
-		);
+    	$client = new SoapClient('https://www.zarinpal.com/pg/services/WebGate/wsdl', ['encoding' => 'UTF-8']);
+    	
+    	$result = $client->PaymentVerification(
+    			[
+    					'MerchantID' => $merchantID,
+    					'Authority' => $Authority,
+    					'Amount' => $pay->amount,
+    			]
+    			);
+    	
+    	
+    	
         if($result->Status == 100){
 			$arr_update=array(
             "id" => $id,
