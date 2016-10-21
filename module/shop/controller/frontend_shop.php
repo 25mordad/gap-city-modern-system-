@@ -189,7 +189,7 @@ function show($id)
 			}
 			$_SESSION['result']=" محصول با موفقیت به سبد خرید اضافه شد.";
 			$_SESSION['alert']="success";
-			header("location: /shop/show/".$id);
+			header("location: /shop/cart");
 		}
 
 		$GLOBALS['GCMS']
