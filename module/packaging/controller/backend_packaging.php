@@ -98,10 +98,55 @@ function new_packaging()
 	}
 }
 
-function products()
+function products($id)
 {
+	if ($_GET['del']){
+		$arr_update=array(
+				"id" => $_GET['del'],
+				"pg_status" => "delete",
+				"date_modified" => date("Y-m-d H:i:s")
+		);
+		Page::update($arr_update);
+		$_SESSION['result']=" سطر حذف شد ";
+		$_SESSION['alert']="success";
+		header("location: /gadmin/packaging/products/".$id);
+	}
 	$packing =Page::get(array("id" => $id, "pg_type" => "packaging"));
 	$GLOBALS['GCMS']->assign('packing', $packing);
+	if (isset($_GET['add'])){
+		$qSelect = "
+				SELECT * FROM `gcms_products`
+				WHERE `barcode` LIKE '%".$_POST['barcode']."%'
+				";
+		$query = $GLOBALS['GCMS_SAFESQL']->query($qSelect);
+		$prdc = $GLOBALS['GCMS_DB']->get_row($query);
+		
+		$arr_insert=array(
+				"pg_type" => "packProduct",
+				"parent_id" => $id,
+				"pg_title" => $prdc->id,
+				"pg_content" => $_POST['size'],
+				"pg_excerpt" => $_POST['color'],
+				"pg_status" => "publish",
+				"comment_status" => "close",
+				"pg_order" => "0",
+				"author_id" => $_SESSION["userid"],
+				"date_created" => date("Y-m-d H:i:s"),
+				"date_modified" => date("Y-m-d H:i:s")
+		);
+		Page::insert($arr_insert);
+		$_SESSION['result']=" محصول جدید به پک اضافه شد  ";
+		$_SESSION['alert']="success";
+		header("location: /gadmin/packaging/products/".$id);
+		
+	}
+	$arr_get=array(
+			"pg_type" => "packProduct",
+			"pg_status" => "publish",
+			"parent_id" => $id,
+	);
+	
+	$GLOBALS['GCMS']->assign('packsprdct', Page::get($arr_get, true,array("by"=>'id',"sort"=>'DESC')));
 }
 
 

@@ -11,55 +11,43 @@
                     <thead>
                     <tr>
                         <th>
-نماینده فروش
+ عنوان محصول
                         </th>
                         <th>
-مسوول ارسال
+ سایز
                         </th>
                         <th>
-تاریخ ارسال
+ رنگ
                         </th>
                         
                     </tr>
                     </thead>
                     <tbody>
-                    {foreach $packs as $row}
+                    {foreach $packsprdct as $row}
                         <tr>
                             <td>
-                                
-                                {get_user_name id_user=$row->pg_title} 
-                                {get_user_params id_user=$row->pg_title name="55"}
-                                -
-                                {$getuser->username} 
+                            {getProductShop id=$row->pg_title}
+                            <div><a href="/shop/show/{$row->pg_title}/?title={$getProduct->en_title} {$getProduct->fa_title}" target="_blank">
+                            <img alt="{$getProduct->fa_title}" src="{$getProduct->default_photo}" width="100" align="right" style="padding:10px" ></a>
+                            
+                            <h4><a href="/shop/show/{$row->pg_title}/?title={$getProduct->en_title} {$getProduct->fa_title}" target="_blank">{$getProduct->fa_title} </a></h4>
+                                    </div>
                             </td>
                            <td>
                                 {$row->pg_content}
                             </td>
 							<td>
-                                {date("Y-m-d",strtotime($row->date_modified))} /  {jdate("Y-m-d",strtotime($row->date_modified))}
+                                {$row->pg_excerpt}
                             </td>
 
                             <td>
 
 								
-                                <button class="btn btn-xs btn-info" onclick="location.href='/gadmin/packaging/?edit={$row->id}'" data-toggle="tooltip" data-placement="top"  title=" ویرایش " >
-                                    <i class=" fa fa-pencil bigger-120"></i>
+                                <button class="btn btn-xs btn-danger" 
+                                onclick="location.href='?del={$row->id}'" data-toggle="tooltip" data-placement="top"  title=" ویرایش " >
+                                    <i class=" fa fa-trash-o bigger-120"></i>
                                 </button>
-                                <button class="btn btn-xs btn-primary" onclick="location.href='/gadmin/packaging/products/{$row->id}'" data-toggle="tooltip" data-placement="top"  title=" اضافه کردن محصول به بسته " >
-                                    <i class=" fa fa-plus bigger-120"></i>
-                                </button>
-                                {if $row->pg_status eq "publish"}
-                                    <button class="btn btn-xs btn-success" data-toggle="tooltip" data-placement="top" onclick="location.href='?status=publish&id={$group->id}'" title=" انتشاریافته " >
-                                        <i class="ace-icon fa fa-check bigger-120"></i>
-                                    </button>
-                                {/if}
-                                {if $row->pg_status eq "pending"}
-                                    <button class="btn btn-xs btn-warning" data-toggle="tooltip" data-placement="top" onclick="location.href='?status=pending&id={$group->id}'" title=" در حال ارسال  " >
-                                        <i class="ace-icon fa fa-close bigger-120"></i>
-                                    </button>
-                                {/if}
-                                
-                             
+                               
                             </td>
                         </tr>
 
