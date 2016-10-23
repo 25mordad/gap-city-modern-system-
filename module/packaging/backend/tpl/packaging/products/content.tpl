@@ -14,6 +14,9 @@
  عنوان محصول
                         </th>
                         <th>
+  قیمت
+                        </th>
+                        <th>
  سایز
                         </th>
                         <th>
@@ -32,6 +35,20 @@
                             
                             <h4><a href="/shop/show/{$row->pg_title}/?title={$getProduct->en_title} {$getProduct->fa_title}" target="_blank">{$getProduct->fa_title} </a></h4>
                                     </div>
+                            </td>
+                           <td>
+                               {if $getProduct->show_sales_price eq "sales1"}
+			                    <span class="price-sales" >{number_format($getProduct->salse1_price)} </span>
+			                    {/if}
+			                	{if $getProduct->show_sales_price eq "sales2"}
+			                    <span class="price-sales" >{number_format($getProduct->sales2_price)} </span>
+			                    {/if}
+			                	{if $getProduct->show_sales_price eq "min"}
+			                    <span class="price-sales" >{number_format($getProduct->min_price)} </span>
+			                    {/if}
+			                	{if $getProduct->show_sales_price eq "none"}
+			                    <span class="price-sales" >{number_format($getProduct->price)} </span>
+			                    {/if}
                             </td>
                            <td>
                                 {$row->pg_content}
