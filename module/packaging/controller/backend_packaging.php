@@ -146,6 +146,10 @@ function products($id)
 			"parent_id" => $id,
 	);
 	
+	$GLOBALS['GCMS']->assign('colorList', Page::get(array("pg_type" => "color", "pg_status" => "publish"),true));
+	$GLOBALS['GCMS']->assign('sizeList', Page::get(array("pg_type" => "size", "pg_status" => "publish"),true,array("by"=>'pg_order',"sort"=>'ASC')));
+	
+	
 	$GLOBALS['GCMS']->assign('packsprdct', Page::get($arr_get, true,array("by"=>'id',"sort"=>'DESC')));
 }
 
