@@ -26,6 +26,13 @@ $lastRate = Dinerorate::get(array(
 		"refrence" => "o-xe.com",
 						),false,array("by"=>'id',"sort"=>'DESC'));
 
+$yesterdayRateQuery = "
+		SELECT AVG(ratesell) as avg FROM `gcms_dinerorate` WHERE `date` LIKE '%".date('Y-m-d',strtotime("-1 days"))."%'
+		";
+		
+$yesterdayRate = $GLOBALS['GCMS_SAFESQL']->query($yesterdayRateQuery);
+$yesterdayRate= $GLOBALS['GCMS_DB']->get_results($yesterdayRate);
+$GLOBALS['GCMS']->assign('yesterdayRate', $yesterdayRate);
 $GLOBALS['GCMS']->assign('dineroLastRate', $lastRate);
 
 

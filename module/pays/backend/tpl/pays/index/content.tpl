@@ -32,7 +32,7 @@
                     ]}
                     {foreach $pays as $pay}
                         <tr>
-                            <td><span style="font-family: tahoma">{get_user_name id_user=$pay->id_user}<a href="/gadmin/user/edit/{$pay->id_user}" >{$getuser->username|truncate:26:"..":true}</a></span></td>
+                            <td><span style="font-family: tahoma">{if $pay->id_user neq 0}{get_user_name id_user=$pay->id_user}<a href="/gadmin/user/edit/{$pay->id_user}" >{$getuser->username|truncate:26:"..":true}</a>{else}-{/if}</span></td>
                             <td >{number_format($pay->amount)}</td>
                             <td>{jdate(" Y/m/d <br> H:i:s",strtotime($pay->date))}</td>
                             <td>{$arr_status[$pay->status]}</td>

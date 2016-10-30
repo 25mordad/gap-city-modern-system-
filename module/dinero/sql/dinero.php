@@ -55,6 +55,29 @@ CREATE TABLE `gcms_dinerorate` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 			
 			";
+	$q[] = "
+
+CREATE TABLE `gcms_dinerorder` (
+  `id` bigint(20) NOT NULL,
+  `id_user` bigint(20) DEFAULT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `cell` varchar(45) DEFAULT NULL,
+  `idnumber` varchar(45) DEFAULT NULL,
+  `address` tinytext,
+  `country` varchar(45) DEFAULT NULL,
+  `bankname` varchar(45) DEFAULT NULL,
+  `iban` varchar(45) DEFAULT NULL,
+  `paymethod` varchar(45) DEFAULT NULL,
+  `moneytransfereu` int(12) DEFAULT NULL,
+  `moneytransfertm` int(12) DEFAULT NULL,
+  `paymentstatus` varchar(45) DEFAULT NULL,
+  `status` varchar(45) DEFAULT NULL,
+  `date` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+			
+			
+			";
 
 	echo "
 			<div style=\"border:1px solid blue; padding:10px; width: 700px; margin:10px auto;\" >

@@ -11,6 +11,7 @@
  * @version 2.0
  *
  */
+require_once(__COREROOT__."/module/dinero/model/Dinerorder.php");
 require_once(__COREROOT__."/module/dinero/model/Dinerorate.php");
 
 /* 
