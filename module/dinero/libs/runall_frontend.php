@@ -15,7 +15,7 @@
 
 //check last update
 $lastUpdate = strtotime($GLOBALS['GCMS_SETTING']['dinero']['lastUpdate']);
-$date6Ago = strtotime("-6 hours");
+$date6Ago = strtotime("-1 hours");
 
 if ($lastUpdate < $date6Ago) {
 	updateRate();
@@ -25,14 +25,21 @@ $lastRate = Dinerorate::get(array(
 		"type"     => "EU",
 		"refrence" => "o-xe.com",
 						),false,array("by"=>'id',"sort"=>'DESC'));
-
+//
 $yesterdayRateQuery = "
 		SELECT AVG(ratesell) as avg FROM `gcms_dinerorate` WHERE `date` LIKE '%".date('Y-m-d',strtotime("-1 days"))."%'
 		";
-		
 $yesterdayRate = $GLOBALS['GCMS_SAFESQL']->query($yesterdayRateQuery);
-$yesterdayRate= $GLOBALS['GCMS_DB']->get_results($yesterdayRate);
-$GLOBALS['GCMS']->assign('yesterdayRate', $yesterdayRate);
+$GLOBALS['GCMS']->assign('yesterdayRate', $GLOBALS['GCMS_DB']->get_results($yesterdayRate));
+//
+$weekRateQuery = "
+		SELECT date(date) as ddate,ratesell FROM `gcms_dinerorate` WHERE date > DATE_SUB(NOW(), INTERVAL 7 DAY) 
+		";
+$weekRate = $GLOBALS['GCMS_SAFESQL']->query($weekRateQuery);
+$GLOBALS['GCMS']->assign('weekRate', $GLOBALS['GCMS_DB']->get_results($weekRate));
+
+
+
 $GLOBALS['GCMS']->assign('dineroLastRate', $lastRate);
 
 
@@ -73,3 +80,9 @@ function updateRate(){
 			));
 	
 }
+
+
+
+
+
+

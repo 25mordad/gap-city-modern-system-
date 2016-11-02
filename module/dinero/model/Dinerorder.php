@@ -59,7 +59,7 @@ class Dinerorder
                          %n  , 
                          %n 
 						)", array($arr['id_user'] , $arr['email'] , $arr['name'] , $arr['cell'] , $arr['idnumber'] , $arr['address'] , $arr['country'] , $arr['bankname'] , $arr['iban'] , $arr['paymethod'] , $arr['moneytransfereu'] , $arr['moneytransfertm'] , $arr['paymentstatus'] , $arr['status'] , $arr['date']));
-		return $GLOBALS['GCMS_DB']->query($query);
+				return $GLOBALS['GCMS_DB']->query($query);
 	}
     
     public function update($arr)
