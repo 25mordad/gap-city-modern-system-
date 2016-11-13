@@ -28,7 +28,7 @@ function offline()
 			"refrence" => "o-xe.com",
 	),false,array("by"=>'id',"sort"=>'DESC'));
 	
-	$rateEu =  $lastRate->ratesell+10;
+	$rateEu =  $lastRate->ratesell;
 	$euTransfer = $_POST['moneytransfer'];
 	$tmTransfer = $euTransfer*$rateEu;
 	$arr_insert=array(
@@ -471,7 +471,7 @@ function add()
 				"refrence" => "o-xe.com",
 		),false,array("by"=>'id',"sort"=>'DESC'));
 		
-		$rateEu =  $lastRate->ratesell+10;
+		$rateEu =  $lastRate->ratesell;
 		$euTransfer = $_POST['moneytransfer'];
 		$tmTransfer = $euTransfer*$rateEu;
 		if ($_POST['paymethod'] == "online"){

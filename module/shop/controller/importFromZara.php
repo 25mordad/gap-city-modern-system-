@@ -65,17 +65,17 @@ if ($_GET['step'] == "title" ){
 if ($_GET['step'] == "price" ){
 
 
-	foreach ($html->find('td[class=size-name]') as $sizes) {
-		$Allsizes[] = str_replace(" ","-",strtolower(trim($sizes->innertext)));
+	foreach ($html->find('input[name=size]') as $sizes) {
+		$Allsizes[] = str_replace(" ","-",strtolower(trim($sizes->value)));
 	}
+	
 	$GLOBALS['GCMS']->assign('Allsizes', $Allsizes);
 
-	$updColor = "";
+	$updSize = "";
 	foreach ($Allsizes  as $size){
 
 		$updSize = $updSize . $size."|";
 	}
-
 
 	foreach ($html->find('span[class=color-description]') as $colors) {
 		$allColors[] = str_replace(" ","-",strtolower(trim($colors->innertext)));

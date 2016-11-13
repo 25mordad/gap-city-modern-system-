@@ -454,6 +454,9 @@ function importFromMango($id){
 function importFromStradivarius($id){
 	require_once("importFromStradivarius.php");
 }
+function importFromSportsdirect($id){
+	require_once("importFromSportsdirect.php");
+}
 function importFromMangooutlet($id){
 	require_once("importFromMangooutlet.php");
 }
@@ -655,6 +658,37 @@ function new_shop()
 			$_SESSION['result']="محصول جدید ایجاد شد";
 			$_SESSION['alert']="success";
 			header("location: /gadmin/shop/importFromStradivarius/".$lastId."?step=images");
+		}
+		if ($_POST['type'] == "sportsdirect")
+		{
+			$arr_insert=array(
+					"group_id" => $_POST['group_id'],
+					"brand"   => "0",
+					"delivery_time"   => "21",
+					"p_order"   => "0",
+					"visitor"   => "0",
+					"quantity"   => "5",
+					"show_real_price"   => "true",
+					"show_sales_price"   => "none",
+					"price"   => "0",
+					"salse1_price"   => "0",
+					"salse2_price"   => "0",
+					"min_price"   => "0",
+					"update_check"   => "false",
+					"link"   => trim($_POST['link']),
+					"default_photo"   => "0",
+					"status"   => "pending"
+			);
+			$lastId = Products::insert($arr_insert);
+			$pbar =$lastId + 10000;
+			$arr_update=array(
+					"id" => $lastId,
+					"barcode" => $_POST['barcode']."/".$pbar,
+			);
+			Products::update($arr_update);
+			$_SESSION['result']="محصول جدید ایجاد شد";
+			$_SESSION['alert']="success";
+			header("location: /gadmin/shop/importFromSportsdirect/".$lastId."?step=images");
 		}
 		
 	}
