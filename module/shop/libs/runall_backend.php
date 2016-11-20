@@ -57,6 +57,10 @@ $GCMSmenu_contact['child'][3]['title']="  لیست رنگ‌ها  ";
 $GCMSmenu_contact['child'][4]['action']="index";
 $GCMSmenu_contact['child'][4]['link']="shop/size";
 $GCMSmenu_contact['child'][4]['title']="  لیست سایزها  ";
+///
+$GCMSmenu_contact['child'][4]['action']="index";
+$GCMSmenu_contact['child'][4]['link']="shop/setting";
+$GCMSmenu_contact['child'][4]['title']=" تنظیمات  ";
 
 
 array_push($GLOBALS["backend_menu"], $GCMSmenu_contact);

@@ -63,6 +63,24 @@ $newArrivalQuery = "
 $GLOBALS['GCMS']->assign('shopNewArrivals',$GLOBALS['GCMS_DB']->get_results($GLOBALS['GCMS_SAFESQL']->query($newArrivalQuery)));
 
 
+///////////// Top Discunts
+
+$newArrivalQuery = "
+		SELECT * FROM `gcms_products`
+		WHERE TRUE
+		AND `status` = 'publish' AND `show_sales_price` != 'none'
+		ORDER BY `gcms_products`.`p_order` DESC, `gcms_products`.`id` DESC
+		LIMIT 0  , 10
+";
+
+
+$GLOBALS['GCMS']->assign('shopTopDiscunts',$GLOBALS['GCMS_DB']->get_results($GLOBALS['GCMS_SAFESQL']->query($newArrivalQuery)));
+
+///////////// Brands
+
+$GLOBALS['GCMS']->assign('shopBrands',Page::get(array("pg_type" => "brand"), true,array("by"=>'pg_order',"sort"=>'ASC')));
+
+
 
 
 

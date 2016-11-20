@@ -6,10 +6,39 @@
 <div class="box box-solid box-primary">
     <div class="box-header">
         <h3 class="box-title">
+برند
+        </h3>
+    </div>
+    <div class="box-body">
+    <p>
+		<a href="/gadmin/shop/brand/?new={$brand}" target="_blank">{$brand}</a>
+    </p>
+    	<p>
+			<select class="form-control" name="brand" id="brand" >
+            
+                 {foreach $brands as $br}
+                     <option value="{$br->id}" {if $product->brand eq $br->id} selected="selected" {/if} 	>{$br->pg_content}</option>
+                 {/foreach}
+             </select>
+            <div class="clearfix" ></div>
+		</p>
+    </div>
+</div>
+<!--  ******  -->
+	
+<div class="box box-solid box-primary">
+    <div class="box-header">
+        <h3 class="box-title">
 سایز
         </h3>
     </div>
     <div class="box-body">
+    <p>
+		{$arrSize = explode("|",$product->size)}
+		{foreach $arrSize as $row}
+			<a href="/gadmin/shop/size/?new={$row}" target="_blank">{$row}</a> - 
+		{/foreach}
+    </p>
     	<p>
 		{foreach $Allsizes as $as}
 		<span class="badge">{$as}</span>
@@ -49,6 +78,12 @@
         </h3>
     </div>
     <div class="box-body">
+    <p>
+    {$arrColor= explode("|",$product->color)}
+		{foreach $arrColor as $row}
+			<a href="/gadmin/shop/color/?new={$row}" target="_blank">{$row}</a> - 
+		{/foreach}
+    </p>
 		<p>
 		{foreach $allColors as $as}
 		<span class="badge">{$as}</span>

@@ -72,12 +72,12 @@ if ($_GET['step'] == "price" ){
 		$colorDiv = str_replace("Colour", "",  trim($colorDiv[0]->plaintext));
 		$colorDiv =  trim(substr(strstr(trim($colorDiv)," "), 1));
 		$colorDivArr = explode(" ", $colorDiv);
-		$updSize = "";
+		$updColor = "";
 		foreach ($colorDivArr as $row){
 			if ($row != "")
-				$updSize =  $updSize . trim($row)."|";
+				$updColor =  $updColor . trim($row)."|";
 		}
-
+		
 		$sizeDiv = $html->find('ul[class=sizeButtons]');
 		$updSize = preg_replace("/ {2,}/", '|', trim($sizeDiv[0]->plaintext));
 		$arr_update=array(
@@ -151,6 +151,7 @@ if ($_GET['step'] == "size" ){
 				"id" => $id,
 				"size" =>$updSize,
 				"color" =>$updColor,
+				"brand" => $_POST['brand'],
 		);
 		Products::update($arr_update);
 		header("location: /gadmin/shop/edit/".$id);
@@ -189,8 +190,10 @@ if ($_GET['step'] == "size" ){
 	
 	$GLOBALS['GCMS']->assign('allColors', $allColors);
 
-
-
+	$en_titleHtml = $html->find('span[id=ProductName]');
+	$GLOBALS['GCMS']->assign('brand', strtok($en_titleHtml[0]->plaintext, " "));
+	$GLOBALS['GCMS']->assign('brands', Page::get(array("pg_type" => "brand", "pg_status" => "publish"),true));
+	
 	$arr_update=array(
 			"id" => $id,
 			"price" => $_POST['price'],
@@ -200,5 +203,6 @@ if ($_GET['step'] == "size" ){
 
 	);
 	Products::update($arr_update);
+	
 
 }

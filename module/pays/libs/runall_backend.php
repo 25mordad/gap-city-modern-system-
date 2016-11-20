@@ -16,7 +16,7 @@
 /////////////////////////////// New Menu
 $GCMSmenu_users=array();
 //
-$GCMSmenu_users['part']="user";
+$GCMSmenu_users['part']="pays";
 $GCMSmenu_users['title']=" مدیریت پرداخت ها ";
 $GCMSmenu_users['icon']="fa  fa-user ";
 

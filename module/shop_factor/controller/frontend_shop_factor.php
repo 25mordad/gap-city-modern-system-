@@ -63,6 +63,8 @@ function index()
         			);
         			ShopFactor::update($arr_update);
         			
+        			require_once(__COREROOT__."/module/shop_factor/controller/email.php");
+        			
         			$_SESSION['result']="پرداخت شما با موفقیت در سیستم ثبت شد";
         			$_SESSION['alert']="success";
         			header("location: /shop_factor/thanks/".$_GET['sfid']);

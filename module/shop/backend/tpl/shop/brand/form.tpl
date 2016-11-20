@@ -17,7 +17,9 @@
                         {if isset($group_product)}
                         style="border: 1px solid #ffa902;background: #FFFF66;font-size: 14px"
                         {/if}
-                       {if isset($group_product)}value="{$group_product->pg_title}"{/if}>
+                       {if isset($group_product)}value="{$group_product->pg_title}"{/if}
+                       {if isset($smarty.get.new)}value="{$smarty.get.new}"{/if}
+                       >
 
 
             </div>

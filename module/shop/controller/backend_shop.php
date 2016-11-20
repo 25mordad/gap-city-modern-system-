@@ -854,3 +854,18 @@ function instagram($id)
 		header("location: /error404?error=shop&reason=product_not_exist");
 }
 
+
+function setting()
+{
+
+	if(isset($_POST['nextdelivery']))
+	{
+		$merchantID=Setting::get(array("st_group" => "shop", "st_key" => "nextdelivery"));
+		Setting::update(array("id" => $merchantID->id, "st_value" => $_POST['nextdelivery']));
+		$_SESSION['result']="ویرایش انجام شد";
+		$_SESSION['alert']="success";
+		header("location: /gadmin/shop/setting/");
+	}
+}
+
+

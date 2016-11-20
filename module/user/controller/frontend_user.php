@@ -136,10 +136,14 @@ function forgot()
 		if(isset($_GET['forgot'])&&$_GET['forgot']=="true")
 		{
 			require_once(__COREROOT__."/libs/utility/validating.php");
-			if(trim($_POST['capcha'])==""||trim($_POST['capcha'])!=$_SESSION['gcms_cpcha'])
+			
+			if(isset($_POST['g-recaptcha-response']))
+				$captcha=$_POST['g-recaptcha-response'];
+
+			if(!$captcha)
 			{
-				$_SESSION['result']="کد تصویری را وارد نکرده‌اید و یا اشتباه وارد کرده‌اید";
-				$_SESSION['alert']="warning";
+				$_SESSION['result']=" لطفا «من ربات نیستم» را تایید کنید  ";
+					$_SESSION['alert']="warning";
 			}
 			else if(!email_validation($_POST['email']))
 			{
@@ -161,35 +165,10 @@ function forgot()
 								"temp_code" => $t_c
 						);
 						User::update($arr_update);
-
-						$email_text="
-						برای رسیدن به کلمه عبور جدید ، <a href=\"http://$_SERVER[HTTP_HOST]/user/forgot?email=$chk_user->email&t_c=$t_c\" >اینجا</a> را کلیک کنید و یا لینک زیر را دنبال کنید : <br/>
-						http://$_SERVER[HTTP_HOST]/user/forgot?email=$chk_user->email&t_c=$t_c
-						<br/>
-						";
-						$arr_email=array(
-								"from" => "noreply@".$_SERVER['HTTP_HOST'],
-								"to" => $chk_user->email,
-								"subject" => "Change Password Link From ".$_SERVER['HTTP_HOST'],
-								"text" => $email_text,
-								"sign" => ":: این ایمیل به صورت خودکار برای شما ارسال شده است ::",
-								"URL" => $_SERVER['HTTP_HOST'],
-						);
-						$sendmail=new Email();
-						$sendmail->set("html", true);
-						$sendmail->getParams($arr_email);
-						$sendmail->parseBody();
-						$sendmail->setHeaders();
-						if($sendmail->send())
-						{
-							$_SESSION['result']="لینک تغییر کلمه عبور، به آدرس ایمیل شما ارسال شد ";
-							$_SESSION['alert']="success";
-						}
-						else
-						{
-							$_SESSION['result']="مشکلی در ارسال ایمیل به وجود آمد، دوباره تلاش کنید";
-							$_SESSION['alert']="error";
-						}
+						require_once(__COREROOT__."/module/user/controller/forgotemail.php");
+						
+						$_SESSION['result']="لینک تغییر کلمه عبور، به آدرس ایمیل شما ارسال شد ";
+						$_SESSION['alert']="success";
 					}
 					else
 					{
@@ -217,6 +196,7 @@ function forgot()
 			{
 				require_once(__COREROOT__."/libs/utility/hashing.php");
 				$n_p=rndstring(8);
+				
 				$password_salt=saltit($chk_user->username);
 				$password=hashit($n_p, $password_salt);
 
@@ -227,35 +207,9 @@ function forgot()
 						"password_salt" => $password_salt
 				);
 				User::update($arr_update);
-
-				$email_text="
-				کلمه عبور جدید شما : \n
-				$n_p
-				";
-				$arr_email=array(
-						"from" => "noreply@".$_SERVER['HTTP_HOST'],
-						"to" => $chk_user->email,
-						"subject" => "New Password From ".$_SERVER['HTTP_HOST'],
-						"text" => $email_text,
-						"sign" => ":: این ایمیل به صورت خودکار برای شما ارسال شده است ::",
-						"URL" => $_SERVER['HTTP_HOST'],
-				);
-				$sendmail=new Email();
-				$sendmail->set("html", true);
-				$sendmail->getParams($arr_email);
-				$sendmail->parseBody();
-				$sendmail->setHeaders();
-
-				if($sendmail->send())
-				{
-					$_SESSION['result']="کلمه عبور جدید، به آدرس ایمیل شما ارسال شد ";
-					$_SESSION['alert']="success";
-				}
-				else
-				{
-					$_SESSION['result']="مشکلی در ارسال ایمیل به وجود آمد، دوباره تلاش کنید";
-					$_SESSION['alert']="error";
-				}
+				require_once(__COREROOT__."/module/user/controller/resetemail.php");
+				$_SESSION['result']="کلمه عبور جدید، به آدرس ایمیل شما ارسال شد ";
+				$_SESSION['alert']="success";
 			}
 			else
 			{
@@ -399,7 +353,7 @@ function register()
 				$captcha=$_POST['g-recaptcha-response'];
 			
 			if(!$captcha){
-				$_SESSION['result']=" لطفا I'm not a robot را تایید کنید  ";
+				$_SESSION['result']=" لطفا «من ربات نیستم» را تایید کنید  ";
 				$_SESSION['alert']="warning";
 				
 			}
@@ -473,41 +427,8 @@ function register()
 								MetaUser::insert($arr_new_meta);
 								$id_param=key($param);
 							}
-	
-							//sending email...
-							$text_form="
-									<html><body style='text-align:right; direction:rtl;' dir='rtl'>
-									کاربر گرامی ".$_POST['email']
-									." <br />
-											شما    در وب سایت ". $GLOBALS['GCMS_SETTING']['seo']['title']
-											. " "
-											. "http://".$_SERVER['HTTP_HOST']
-											." عضو شدید <br />
-													شما می توانید از طریق اطلاعات  زیر وارد پروفایل کاربری خود شوید . <br />
-													آدرس ورود به کنترل پنل : " ."http://".$_SERVER['HTTP_HOST']
-													."/user <br />
-															نام کاربری : ".$_POST['username']."<br />
-																			کلمه عبور : ".$_POST['password']
-																			."<br />
-	
-																					با تشکر
-										
-																					</body></html>
-																					";
-							$arr_email=array(
-									"from" => $GLOBALS['GCMS_SETTING']['general']['email'],
-									"to" => $_POST['email'],
-									"subject" => "به وب سایت ".$GLOBALS['GCMS_SETTING']['seo']['title']." خوش آمدید.",
-									"text" => $text_form,
-									"sign" => "::ارسال خودکار توسط سیستم::",
-									"URL" => "آدرس سایت :: ".$_SERVER['HTTP_HOST'],
-							);
-							$sendmail=new Email();
-							$sendmail->set("html", true);
-							$sendmail->getParams($arr_email);
-							$sendmail->parseBody();
-							$sendmail->setHeaders();
-							$sendmail->send();
+							
+							require_once(__COREROOT__."/module/user/controller/email.php");
 	
 	                        //password ok. setting sessions...
 	                        $_SESSION["glogin_username"]=$_POST['username'];
@@ -573,3 +494,5 @@ function dashboard()
 	// END OF COUSTOM DASHBOARD FOR GATRIYA USER
 
 }
+
+

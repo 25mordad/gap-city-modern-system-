@@ -45,6 +45,13 @@ function searchProduct()
 	$end = $max_results;
 	$limit = " LIMIT $start  , $end ";
 	
+	//Brand
+	$QBrand = " ";
+	if ( $_GET['brand'] != "ALL"){
+		$fetchBrand = explode("|", $_GET['brand']);
+		$QBrand = " AND `brand` = $fetchBrand[0] ";
+	}
+	
 	//barcode
 	$Qbarcode = " ";
 	if ( $_GET['barcode'] != "NULL")
@@ -61,7 +68,7 @@ function searchProduct()
 	$where = "
 	WHERE TRUE
 	AND `status` = 'publish'
-	$Qbarcode $Qq
+	$Qbarcode $Qq $QBrand
 	ORDER BY `gcms_products`.`p_order` DESC , `gcms_products`.`id` DESC
 	";
 	$queryWithLimit = $GLOBALS['GCMS_SAFESQL']->query($select.$where.$limit);
