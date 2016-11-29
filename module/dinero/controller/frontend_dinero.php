@@ -128,6 +128,7 @@ function offline()
 			$bodyInfo="
 					<div>
                     <b>$name</b><br>
+                    ".$_POST['email']."<br>
                     $idnumber<br>
                     $country<br>
                     $address<br>
@@ -164,7 +165,7 @@ function offline()
                        '.number_format($euTransfer).' 
                       </td>
                       <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7;">
-                        '.number_format($rateEu).'
+                        '.number_format($tmTransfer/$euTransfer).'
                       </td>
                       <td style="padding-top:5px; border-top:1px solid #E7E7E7;" class="mobile">
                         '.number_format($tmTransfer).'
@@ -345,6 +346,7 @@ function back()
 				$bodyInfo="
 				<div>
 				<b>$name</b><br>
+				".$dinRow->email."<br>
 				$idnumber<br>
 				$country<br>
 				$address<br>
@@ -381,10 +383,10 @@ function back()
                        '.number_format($dinRow->moneytransfereu).'
                       </td>
                       <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7;">
-                        '.number_format($dinRow->moneytransfertm).'
+                        '.number_format($dinRow->moneytransfertm/$dinRow->moneytransfereu).'
                       </td>
                       <td style="padding-top:5px; border-top:1px solid #E7E7E7;" class="mobile">
-                        '.number_format($dinRow->moneytransfertm*$dinRow->moneytransfertm).'
+                        '.number_format($dinRow->moneytransfertm).'
                       </td>
                     </tr>
                   </table>
@@ -407,7 +409,7 @@ function back()
                                 </tr>
                                 <tr>
                                   <td>Euro collect: </td>
-                                  <td> <b>€'.number_format($dinRow->moneytransfere - $transferFeeEuro).'</b></td>
+                                  <td> <b>€'.number_format($dinRow->moneytransfereu - $transferFeeEuro).'</b></td>
                                 </tr>
                                 <tr>
                                   <td>Due by: </td>

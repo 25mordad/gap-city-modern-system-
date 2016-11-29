@@ -32,7 +32,8 @@ if ($_GET['step'] == "title" ){
 	$en_titleTranslate = json_decode(file_get_contents("https://www.googleapis.com/language/translate/v2?q=".rawurlencode($en_title)."&target=fa&key=".$GLOBALS['GCMS_SETTING']['shop']['translatekey']));
 	
 	$en_txtHtml = $html->find('span[itemprop=description]');
-	$en_txt= trim($en_txtHtml[0]->plaintext);
+	$dscrpshn = explode("For our full range of", $en_txtHtml[0]->plaintext);
+	$en_txt= trim(str_replace($en_title, "", $dscrpshn[0]));
 	$en_txtTranslate = json_decode(file_get_contents("https://www.googleapis.com/language/translate/v2?q=".rawurlencode($en_txt)."&target=fa&key=".$GLOBALS['GCMS_SETTING']['shop']['translatekey']));
 	
 	$refrenceP = $html->find('p[class=productCode]');
@@ -91,7 +92,7 @@ if ($_GET['step'] == "price" ){
 				"refrence" => $_POST['refrence'],
 				"sales2_price" => "0",
 				"min_price" => "0",
-				"status" => "publish",
+				"status" => "pending",
 				"show_real_price" => "false",
 				"size" =>$updSize,
 				"color" =>$updColor,

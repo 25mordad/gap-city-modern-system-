@@ -862,6 +862,10 @@ function setting()
 	{
 		$merchantID=Setting::get(array("st_group" => "shop", "st_key" => "nextdelivery"));
 		Setting::update(array("id" => $merchantID->id, "st_value" => $_POST['nextdelivery']));
+		
+		$eurorate=Setting::get(array("st_group" => "shop", "st_key" => "eurorate"));
+		Setting::update(array("id" => $eurorate->id, "st_value" => $_POST['eurorate']));
+		
 		$_SESSION['result']="ویرایش انجام شد";
 		$_SESSION['alert']="success";
 		header("location: /gadmin/shop/setting/");

@@ -9,6 +9,12 @@
             </label>
             <input required type="text" name="nextdelivery" value="{$GCMS_SETTING['shop']['nextdelivery']}" placeholder="  تاریخ ارسال بعدی محصولات " class="form-control">
         </div>
+        <div class="form-group">
+            <label>
+                مبلغ رفرنس یورو   
+            </label>
+            <input required type="text" name="eurorate" value="{$GCMS_SETTING['shop']['eurorate']}" placeholder="   مبلغ رفرنس یورو      " class="form-control">
+        </div>
 
         <button class="btn btn-success btn-block btn-flat" type="submit">
 ثبت
