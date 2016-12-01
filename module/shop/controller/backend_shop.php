@@ -873,3 +873,52 @@ function setting()
 }
 
 
+function prices()
+{
+	
+	if(isset($_GET['update']))
+	{
+		if ($_GET['type'] == "real"){
+			$upSql =
+			" UPDATE gcms_products
+		SET `price` = CEIL((((`real_price` + 25 ) + (`real_price` + 25 )*20/100 ) * ".$GLOBALS['GCMS_SETTING']['shop']['eurorate'] .")/10000)*10000-1000 ";
+		}
+		if ($_GET['type'] == "min"){
+			$upSql =
+			" UPDATE gcms_products
+		SET `min_price` = CEIL((((`buy_price` + 10 ) + (`buy_price` + 10 )*20/100 ) * ".$GLOBALS['GCMS_SETTING']['shop']['eurorate'] .")/10000)*10000-1000 ";
+		}
+		
+		if ($_GET['type'] == "s2"){
+			$upSql =
+			" UPDATE gcms_products
+		SET `sales2_price` = CEIL(((`price` + `min_price` )/2)/10000)*10000-1000 ";
+		}
+		
+		if ($_GET['type'] == "s1"){
+			$upSql =
+			" UPDATE gcms_products
+		SET `salse1_price` = CEIL(((`price` + `sales2_price` )/2)/10000)*10000-1000 ";
+		}
+		
+		
+		$q = $GLOBALS['GCMS_SAFESQL']->query($upSql);
+		$GLOBALS['GCMS_DB']->get_results($q);
+		
+		$_SESSION['result']="ویرایش انجام شد";
+		$_SESSION['alert']="success";
+		header("location: /gadmin/shop/prices/?type=".$_GET['type']);
+	}
+	$order=array(
+			"by" => "id",
+			"sort" => "DESC"
+	);
+	$limit=array(
+			"start" => 1,
+			"end"   => 10
+	);
+	$GLOBALS['GCMS']->assign('products', Products::get(array(), true, $order, $limit));
+	
+}
+
+

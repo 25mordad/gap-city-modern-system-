@@ -59,8 +59,12 @@ $GCMSmenu_contact['child'][4]['link']="shop/size";
 $GCMSmenu_contact['child'][4]['title']="  لیست سایزها  ";
 ///
 $GCMSmenu_contact['child'][4]['action']="index";
-$GCMSmenu_contact['child'][4]['link']="shop/setting";
-$GCMSmenu_contact['child'][4]['title']=" تنظیمات  ";
+$GCMSmenu_contact['child'][4]['link']="shop/prices";
+$GCMSmenu_contact['child'][4]['title']=" تنظیم قیمت  ";
+///
+$GCMSmenu_contact['child'][5]['action']="index";
+$GCMSmenu_contact['child'][5]['link']="shop/setting";
+$GCMSmenu_contact['child'][5]['title']=" تنظیمات  ";
 
 
 array_push($GLOBALS["backend_menu"], $GCMSmenu_contact);

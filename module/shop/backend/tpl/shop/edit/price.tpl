@@ -70,6 +70,7 @@
             <label  id="sg_price" for="sg_price" onclick="pmainch(0)"
             style="font-family: tahoma;font-size: 12px;color: red;font-weight: normal;cursor: pointer;" >
             </label>
+            {if $GCMS_SETTING['shop']['type'] neq "sportfabric"}
             <script type="text/javascript">
             function pmainch(p){
             	pmain = (document.getElementById("real_price").value*{$GCMS_SETTING['shop']['eurorate']} ) + (document.getElementById("real_price").value*{$GCMS_SETTING['shop']['eurorate']} *50/100 ) + ({$GCMS_SETTING['shop']['eurorate']}*5)  ;
@@ -80,7 +81,7 @@
             }
             pmainch();
             </script>
-            
+            {/if}
         </p>
         
         <p class="col-md-3">
@@ -91,7 +92,9 @@
             <label  id="sg_salse1" for="sg_salse1" onclick="salse1(0)"
             style="font-family: tahoma;font-size: 12px;color: red;font-weight: normal;cursor: pointer;" >
             </label>
+            {if $GCMS_SETTING['shop']['type'] neq "sportfabric"}
             <script type="text/javascript">
+            
             function salse1(p){
             	pmin = (document.getElementById("buy_price").value*{$GCMS_SETTING['shop']['eurorate']} ) + (document.getElementById("buy_price").value*{$GCMS_SETTING['shop']['eurorate']} *20/100 ) + ({$GCMS_SETTING['shop']['eurorate']}*5) ;
                 pmin = Math.ceil(pmin/10000) * 10000 - 1000  ;
@@ -110,6 +113,7 @@
             }
             salse1();
             </script>
+            {/if}
         </p>
         <p class="col-md-3">
             <label for="sales2_price" >
@@ -119,6 +123,7 @@
             <label  id="sg_salse2" for="sg_salse2" onclick="salse2(0)"
             style="font-family: tahoma;font-size: 12px;color: red;font-weight: normal;cursor: pointer;" >
             </label>
+            {if $GCMS_SETTING['shop']['type'] neq "sportfabric"}
             <script type="text/javascript">
             function salse2(p){
             	
@@ -136,6 +141,7 @@
             }
             salse2();
             </script>
+            {/if}
         </p>
         
         <p class="col-md-3">
@@ -146,6 +152,7 @@
             <label  id="sg_min" for="sg_min" onclick="findMin(0)"
             style="font-family: tahoma;font-size: 12px;color: red;font-weight: normal;cursor: pointer;" >
             </label>
+            {if $GCMS_SETTING['shop']['type'] neq "sportfabric"}
             <script type="text/javascript">
             function findMin(p){
             	pmin = (document.getElementById("buy_price").value*{$GCMS_SETTING['shop']['eurorate']} ) + (document.getElementById("buy_price").value*{$GCMS_SETTING['shop']['eurorate']} *20/100 ) + ({$GCMS_SETTING['shop']['eurorate']}*5) ;
@@ -156,6 +163,7 @@
             }
             findMin();
             </script>
+            {/if}
         </p>
         
         
