@@ -82,14 +82,16 @@ function index()
         }
         if (isset($_GET['step']) and isset($_POST['name']) and isset($_SESSION['sumShopFee']))
         {
-
+        	$tx = $_POST['text'];
+			if ($_POST['discount'] != "")
+				$tx = $_POST['text']." |Discount Code: ".$_POST['discount'] ;
             $array_insert = array(
                 "id_user"    => $_SESSION["glogin_user_id"] ,
                 "address"    => $_POST['province'] . " - " . $_POST['city'] . " - " . $_POST['address'] . " - "
             		."موبایل:‌" .$_POST['mobile'] . " تلفن: " . $_POST['tell'],
                 "zipcode"    => $_POST['zipcode'] ,
                 "name"       => $_POST['name'] ,
-                "text"       => $_POST['text'] ,
+                "text"       => $tx,
                 "status_pay" => "pending",
                 "status"     => "step1",
                 "date"       => date("Y-m-d H:i:s"),

@@ -321,13 +321,82 @@ function cart()
 		header("location: /shop/cart");
 		
 	}
+	if (isset($_GET['discount'])){
+		//find discount
+		$discount = strtolower(trim($_GET['discount']));
+		$isDiscount = Page::get(array("status" => "publish","pg_type" => "discount","pg_title" => $discount));
+		if (isset($isDiscount->id)){
+			$socialNetwork = substr($discount, 0,2);
+			$time = substr($discount, 2,1);
+			$code = substr($discount, 3,4);
+			$amount = substr($discount, 7,3);
+			
+			if ($time == "w"){
+				if ( date("W") == ($code-2017)/17 ){
+					$GLOBALS['GCMS']->assign('discountAmount', $amount*1000);
+				}else{
+					$_SESSION['result']=" کدتخفیف اعتبار ندارد ";
+					$_SESSION['alert']="warning";
+					header("location: /shop/cart");
+				}
+			}elseif($time == "d"){
+				if ( date("z")+1 == ($code-2017)/17 ){
+					$GLOBALS['GCMS']->assign('discountAmount', $amount*1000);
+				}else{
+					$_SESSION['result']=" کدتخفیف اعتبار ندارد ";
+					$_SESSION['alert']="warning";
+					header("location: /shop/cart");
+				}
+			}
+			
+		}else{
+			$_SESSION['result']=" کدتخفیف اشتباه است ";
+			$_SESSION['alert']="warning";
+			header("location: /shop/cart");
+		}
+		
+	}
 }
 
 function  checkout()
 {
 	if(isset($_SESSION["glogin_username"]))
 	{
+		if (isset($_GET['discount'])){
+			//find discount
+			$discount = strtolower(trim($_GET['discount']));
+			$isDiscount = Page::get(array("status" => "publish","pg_type" => "discount","pg_title" => $discount));
+			if (isset($isDiscount->id)){
+				$socialNetwork = substr($discount, 0,2);
+				$time = substr($discount, 2,1);
+				$code = substr($discount, 3,4);
+				$amount = substr($discount, 7,3);
+					
+				if ($time == "w"){
+					if ( date("W") == ($code-2017)/17 ){
+						$GLOBALS['GCMS']->assign('discountAmount', $amount*1000);
+					}else{
+						$_SESSION['result']=" کدتخفیف اعتبار ندارد ";
+						$_SESSION['alert']="warning";
+						header("location: /shop/cart");
+					}
+				}elseif($time == "d"){
+					if ( date("z")+1 == ($code-2017)/17 ){
+						$GLOBALS['GCMS']->assign('discountAmount', $amount*1000);
+					}else{
+						$_SESSION['result']=" کدتخفیف اعتبار ندارد ";
+						$_SESSION['alert']="warning";
+						header("location: /shop/cart");
+					}
+				}
+					
+			}else{
+				$_SESSION['result']=" کدتخفیف اشتباه است ";
+				$_SESSION['alert']="warning";
+				header("location: /shop/cart");
+			}
 		
+		}
 	}else
 		header("location: /user?redirect=".$_SERVER["REQUEST_URI"]);
 	
