@@ -30,6 +30,11 @@ function index()
 
 function searchProduct()
 {
+	// …'"><svg onload=alert('OPENBUGBOUNTY')>
+	$_GET["paging"] = htmlspecialchars(strip_tags($_GET["paging"]));
+	$_GET["q"] = htmlspecialchars(strip_tags($_GET["q"]));
+	$_GET["barcode"] = htmlspecialchars(strip_tags($_GET["barcode"]));
+	$_GET["brand"] = htmlspecialchars(strip_tags($_GET["brand"]));
 	if(!isset($_GET['q']) or $_GET['q'] == "")
 		$_GET['q']="NULL";
 	if(!isset($_GET['barcode']))
@@ -48,7 +53,7 @@ function searchProduct()
 	//Brand
 	$QBrand = " ";
 	if ( $_GET['brand'] != "ALL"){
-		$fetchBrand = explode("|", $_GET['brand']);
+		$fetchBrand = explode("|", htmlspecialchars($_GET['brand'], ENT_QUOTES, 'UTF-8'));
 		$QBrand = " AND `brand` = $fetchBrand[0] ";
 	}
 	
@@ -97,6 +102,109 @@ function searchProduct()
 	
 }
 
+function keyword($id)
+{
+	$keys=RelKeywordProduct::get(array("key_id" => $id),true);
+	
+	$keyword = KeywordProduct::get(array("id" => $id));
+	$GLOBALS['GCMS']->assign('keyword', $keyword );
+	
+	if(isset($id)&&isset($keys))
+	{
+		$_GET["paging"] = htmlspecialchars(strip_tags($_GET["paging"]));
+		if(!isset($_GET['paging']))
+			header("location: /shop/keyword/$id/".$GLOBALS['GCMS_ROUTER']->title."?paging=1");
+		
+			$GLOBALS['GCMS']->assign('gcms_page_title',$GLOBALS['GCMS_SETTING']['seo']['title']." | ". $keyword->kw_title  );
+			
+			$_GET["categoryid"] = htmlspecialchars(strip_tags($_GET["categoryid"]));
+			$page=Page::get(array("id" => $_GET["categoryid"], "pg_type" => "product_group", "pg_status" => "publish"));
+			if (isset($_GET['categoryid']) && isset($page)){
+				
+				$SubCat =	Page::get(array("parent_id" => $_GET["categoryid"],"status" => "publish"),true);
+				$whereIn = "";
+				foreach ($SubCat as $sc)
+				{
+					$whereIn = $whereIn. "," .$sc->id;
+					$Sub2Cat =	Page::get(array("parent_id" => $sc->id,"status" => "publish"),true);
+					foreach ($Sub2Cat as $sc2)
+					{
+						$whereIn = $whereIn. "," .$sc2->id;
+					}
+				}
+				$max_results=9;
+				
+				$start = (($_GET['paging']*$max_results)-$max_results);
+				$end = $max_results;
+				$limit = " LIMIT $start  , $end ";
+				
+				//find key rel
+				$queryKeyPro = " SELECT * FROM `gcms_keyword_product` WHERE `gcms_keyword_product`.`kw_title` like '%$page->pg_content%' ";
+				$resultKeuId = $GLOBALS['GCMS_DB']->get_row($queryKeyPro);
+				$queryKeyRelPro = "SELECT * FROM `gcms_rel_keyword_product` WHERE `key_id` = $resultKeuId->id ";
+				$AllProWKey = $GLOBALS['GCMS_DB']->get_results($queryKeyRelPro);
+				$allProIdWithKey = "";
+				foreach ($AllProWKey as $row)
+				{
+					$allProIdWithKey = $allProIdWithKey.",".$row->product_id;
+				}
+				
+				
+				foreach ($keys as $row)
+				{
+					$allProdId = $allProdId.$row->product_id;
+					if($row != end($keys)) {
+				         $allProdId = $allProdId.","; 
+				    }
+				}
+				
+				
+				$select = "SELECT * FROM `gcms_products` ";
+				$selectCount = "SELECT COUNT(*) as Num FROM `gcms_products` ";
+				
+				$where = "
+				WHERE TRUE
+				AND `status` = 'publish'
+				AND (`group_id` IN (".$_GET["categoryid"]."  $whereIn) OR `id` IN (0 $allProIdWithKey))
+				AND (id IN ( $allProdId ))
+				ORDER BY `gcms_products`.`p_order` DESC , `gcms_products`.`id` DESC
+				";
+				$queryWithLimit = $GLOBALS['GCMS_SAFESQL']->query($select.$where.$limit);
+				$queryCount = $GLOBALS['GCMS_SAFESQL']->query($selectCount.$where);
+				
+				$GLOBALS['GCMS']->assign('products',$GLOBALS['GCMS_DB']->get_results($queryWithLimit));
+				$GLOBALS['GCMS']->assign('paging', ceil($GLOBALS['GCMS_DB']->get_row($queryCount)->Num/$max_results));
+				$GLOBALS['GCMS']->assign('group', $page);
+				
+				if (!isset($SubCat)){
+					$where = "
+						WHERE TRUE
+						AND `status` = 'publish'
+						AND (`group_id` IN (".$_GET["categoryid"]."  $whereIn) OR `id` IN (0 $allProIdWithKey))
+						ORDER BY `gcms_products`.`p_order` DESC , `gcms_products`.`id` DESC
+									";
+					$selectKeysW = "SELECT id FROM `gcms_products` ";
+					$queryKeysW = $GLOBALS['GCMS_SAFESQL']->query($selectKeysW.$wherekey);
+					$qFindIdIn = "SELECT DISTINCT key_id ,  `gcms_keyword_product`.`kw_title` FROM `gcms_rel_keyword_product` inner join `gcms_keyword_product` on `gcms_keyword_product`.`id` = `gcms_rel_keyword_product`.`key_id` where product_id in ( $queryKeysW )";
+					$GLOBALS['GCMS']->assign('keysW',$GLOBALS['GCMS_DB']->get_results($GLOBALS['GCMS_SAFESQL']->query($qFindIdIn)));
+				}
+				$keywordFa = array(
+						"men"             => "مردانه" ,
+						"women"           => "زنانه" ,
+						"kids"            => "بچه‌گانه" ,
+						"football_shirt"  => "پیراهن ورزشی" ,
+						"football_short"  => "شورت ورزشی" ,
+						"football_sock"   => "جوراب ورزشی" ,
+						"goalkeeper"      => "لباس دروازه‌بان" ,
+							
+				);
+				$GLOBALS['GCMS']->assign('keywordFa', $keywordFa);
+			}else
+				header("location: /error404?error=shop&reason=product_group_not_exist");
+	}else
+		header("location: /error404?error=shop&reason=keyword_group_not_exist");
+	
+}
 function category($id)
 {
 	$page=Page::get(array("id" => $id, "pg_type" => "product_group", "pg_status" => "publish"));
@@ -150,10 +258,29 @@ function category($id)
 		$queryWithLimit = $GLOBALS['GCMS_SAFESQL']->query($select.$where.$limit);
 		$queryCount = $GLOBALS['GCMS_SAFESQL']->query($selectCount.$where);
 		
+		if (!isset($SubCat)){
+			$selectKeysW = "SELECT id FROM `gcms_products` ";
+			$queryKeysW = $GLOBALS['GCMS_SAFESQL']->query($selectKeysW.$where);
+			$qFindIdIn = "SELECT DISTINCT key_id ,  `gcms_keyword_product`.`kw_title` FROM `gcms_rel_keyword_product` inner join `gcms_keyword_product` on `gcms_keyword_product`.`id` = `gcms_rel_keyword_product`.`key_id` where product_id in ( $queryKeysW )";
+			$GLOBALS['GCMS']->assign('keysW',$GLOBALS['GCMS_DB']->get_results($GLOBALS['GCMS_SAFESQL']->query($qFindIdIn)));
+		}
+		
 		
 		$GLOBALS['GCMS']->assign('products',$GLOBALS['GCMS_DB']->get_results($queryWithLimit));
 		$GLOBALS['GCMS']->assign('paging', ceil($GLOBALS['GCMS_DB']->get_row($queryCount)->Num/$max_results));
 		$GLOBALS['GCMS']->assign('group', $page);
+		
+		$keywordFa = array(
+				"men"             => "مردانه" ,
+				"women"           => "زنانه" ,
+				"kids"            => "بچه‌گانه" ,
+				"football_shirt"  => "پیراهن ورزشی" ,
+				"football_short"  => "شورت ورزشی" ,
+				"football_sock"   => "جوراب ورزشی" ,
+				"goalkeeper"      => "لباس دروازه‌بان" ,
+					
+		);
+		$GLOBALS['GCMS']->assign('keywordFa', $keywordFa);
 		
 	}
 	else
