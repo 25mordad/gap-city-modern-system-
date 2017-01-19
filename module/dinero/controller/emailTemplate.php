@@ -211,7 +211,7 @@ function emailTemp($bodyStatus,$bodyInfo,$bodyTransaction){
                   <table border="0" cellpadding="0" cellspacing="0" class="mobile-center-block" align="right">
                     <tr>
                       <td align="right">
-                        <a href="#">
+                        <a href="https://www.facebook.com/LocalDinerocom-1388021071210991/">
                         <img src="http://dinero.ir/uploads/source/emailtemplate/social_facebook.png"  width="30" height="30" alt="social icon"/>
                         </a>
                       </td>
@@ -271,7 +271,7 @@ function emailTemp($bodyStatus,$bodyInfo,$bodyTransaction){
               <tr>
                 <td align="right" valign="middle" class="mobile-padding" style="font-size:12px;padding:20px; background-color:#1f1f1f; color:#ffffff; text-align:left; ">
                   <a style="color:#ffffff;"  href="http://dinero.ir/page/show/3">Contact Us</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-                  <a style="color:#ffffff;" href="#">Facebook</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+                  <a style="color:#ffffff;" href="https://www.facebook.com/LocalDinerocom-1388021071210991/">Facebook</a>&nbsp;&nbsp;|&nbsp;&nbsp;
                   <a style="color:#ffffff;" href="http://dinero.ir/page/show/4/">Support</a>
                 </td>
               </tr>

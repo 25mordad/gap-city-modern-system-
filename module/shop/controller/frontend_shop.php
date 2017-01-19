@@ -196,6 +196,10 @@ function keyword($id)
 						"football_short"  => "شورت ورزشی" ,
 						"football_sock"   => "جوراب ورزشی" ,
 						"goalkeeper"      => "لباس دروازه‌بان" ,
+						"jacket"          => "کاپشن‌" ,
+						"tracksuit"       => "شلوار و گرمکن ورزشی" ,
+						"polo"            => "تی‌شرت یقه‌دار" ,
+						"backpack"        => "کوله‌پشتی" ,
 							
 				);
 				$GLOBALS['GCMS']->assign('keywordFa', $keywordFa);
@@ -271,15 +275,19 @@ function category($id)
 		$GLOBALS['GCMS']->assign('group', $page);
 		
 		$keywordFa = array(
-				"men"             => "مردانه" ,
-				"women"           => "زنانه" ,
-				"kids"            => "بچه‌گانه" ,
-				"football_shirt"  => "پیراهن ورزشی" ,
-				"football_short"  => "شورت ورزشی" ,
-				"football_sock"   => "جوراب ورزشی" ,
-				"goalkeeper"      => "لباس دروازه‌بان" ,
-					
-		);
+						"men"             => "مردانه" ,
+						"women"           => "زنانه" ,
+						"kids"            => "بچه‌گانه" ,
+						"football_shirt"  => "پیراهن ورزشی" ,
+						"football_short"  => "شورت ورزشی" ,
+						"football_sock"   => "جوراب ورزشی" ,
+						"goalkeeper"      => "لباس دروازه‌بان" ,
+						"jacket"          => "کاپشن‌" ,
+						"tracksuit"       => "شلوار و گرمکن ورزشی" ,
+						"polo"            => "تی‌شرت یقه‌دار" ,
+						"backpack"        => "کوله‌پشتی" ,
+							
+				);
 		$GLOBALS['GCMS']->assign('keywordFa', $keywordFa);
 		
 	}

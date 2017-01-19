@@ -28,7 +28,7 @@ function offline()
 			"refrence" => "o-xe.com",
 	),false,array("by"=>'id',"sort"=>'DESC'));
 	
-	$rateEu =  $lastRate->ratesell;
+	$rateEu =  $lastRate->ratesell+30;
 	$euTransfer = $_POST['moneytransfer'];
 	$tmTransfer = $euTransfer*$rateEu;
 	$arr_insert=array(
@@ -68,7 +68,8 @@ function offline()
 			$country = $_POST['country'];
 			$bankname = $_POST['bankname'];
 			$iban = $_POST['iban'];
-			if (  $euTransfer < 200){
+			$transferFeeEuro = 40;
+			/* if (  $euTransfer < 200){
 				$transferFeeEuro = 15 ;
 			}
 			if ( $euTransfer > 200 and $euTransfer < 501){
@@ -85,7 +86,7 @@ function offline()
 			}
 			if ( $euTransfer > 1500 and $euTransfer < 2000){
 				$transferFeeEuro = 70;
-			}
+			} */
 			
 			$bodyStatusDinero = '
 					<div>
@@ -216,6 +217,7 @@ function offline()
 	
 			require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
 			//send to dinero
+			
 			sendEmailWithPhpmailer(
 					emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
 					" درخواست خرید یورو  ".$_SERVER['HTTP_HOST'],"Dinero",
@@ -233,6 +235,10 @@ function offline()
 			Pays::insert($arr_insert);
             $_SESSION['result']=" اطلاعات ارسالی شما در سیستم ثبت شد،   و نیاز به تایید مدیر دارد.";
             $_SESSION['alert']="success";
+            
+            $merchantID=Setting::get(array("st_group" => "dinero", "st_key" => "cash"));
+            Setting::update(array("id" => $merchantID->id, "st_value" => $merchantID->st_value - $euTransfer));
+            
             header("location: /dinero");
 }
 function back()
@@ -286,7 +292,8 @@ function back()
 				$country = $dinRow->country;
 				$bankname = $dinRow->bankname;
 				$iban = $dinRow->iban;
-				if (  $dinRow->moneytransfereu < 200){
+				$transferFeeEuro = 40;
+				/* if (  $dinRow->moneytransfereu < 200){
 					$transferFeeEuro = 15 ;
 				}
 				if ( $dinRow->moneytransfereu > 200 and $dinRow->moneytransfereu < 501){
@@ -303,7 +310,7 @@ function back()
 				}
 				if ( $dinRow->moneytransfereu > 1500 and $dinRow->moneytransfereu < 2000){
 					$transferFeeEuro = 70;
-				}
+				} */
 					
 				$bodyStatusDinero = '
 					<div>
@@ -448,6 +455,9 @@ function back()
 						$GLOBALS['GCMS_SETTING']['dinero']['emaillogin'],$GLOBALS['GCMS_SETTING']['dinero']['emailpassword'],
 						$dinRow->email);
 				
+				$merchantID=Setting::get(array("st_group" => "dinero", "st_key" => "cash"));
+				Setting::update(array("id" => $merchantID->id, "st_value" => $merchantID->st_value - $euTransfer));
+				
 				$_SESSION['result']="پرداخت شما با موفقیت در سیستم ثبت شد";
 				$_SESSION['alert']="success";
 				header("location: /dinero/");
@@ -473,7 +483,7 @@ function add()
 				"refrence" => "o-xe.com",
 		),false,array("by"=>'id',"sort"=>'DESC'));
 		
-		$rateEu =  $lastRate->ratesell;
+		$rateEu =  $lastRate->ratesell+30;
 		$euTransfer = $_POST['moneytransfer'];
 		$tmTransfer = $euTransfer*$rateEu;
 		if ($_POST['paymethod'] == "online"){

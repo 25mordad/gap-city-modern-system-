@@ -15,8 +15,7 @@
 
 //check last update
 $lastUpdate = strtotime($GLOBALS['GCMS_SETTING']['dinero']['lastUpdate']);
-$date6Ago = strtotime("-1 hours");
-
+$date6Ago = strtotime("-30 minutes");
 if ($lastUpdate < $date6Ago) {
 	updateRate();
 }
