@@ -9,4 +9,4 @@
  * @version 2.0
  *
  */
-//$i18n_tokens['SAMPLE'] = 'SAMPLE';
+$i18n_tokens['SMS'] = 'پیامک';

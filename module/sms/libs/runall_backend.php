@@ -48,7 +48,7 @@ array_push($bott_menus, $bott_menu);
 $GCMSmenu_contact=array();
 //
 $GCMSmenu_contact['part']="sms";
-$GCMSmenu_contact['title']=" پیامک ";
+$GCMSmenu_contact['title']="@@SMS@@";
 $GCMSmenu_contact['icon']="fa fa-mobile-phone";
 ///
 $GCMSmenu_contact['child'][0]['action']="index";

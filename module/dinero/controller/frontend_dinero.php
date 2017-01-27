@@ -21,6 +21,208 @@ function index()
 {
 	//index
 }
+
+function bankaccount()
+{
+	if(!isset($_SESSION["gak_email"]))
+		exit(header("Location: /accountkit"));
+	//check
+	$checkBankaccount=Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "bankaccount"));
+	if (!isset($checkBankaccount)){
+		//insert bankaccount
+		$insert_basicinfo=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "bankaccount",
+				"text"    => "false",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_basicinfo);
+		//accountholder
+		$insert_accountholder=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "accountholder",
+				"text"    => "",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_accountholder);
+		//iban
+		$insert_iban=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "iban",
+				"text"    => "",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_iban);
+		//bankname
+		$insert_bankname=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "bankname",
+				"text"    => "",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_bankname);
+		//bankcountry
+		$insert_bankcountry=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "bankcountry",
+				"text"    => "",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_bankcountry);
+	}
+	//
+	$checkbankaccount    = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "bankaccount"));
+	$checkaccountholder  = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "accountholder"));
+	$checkiban           = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "iban"));
+	$checkbankname       = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "bankname"));
+	$checkbankcountry    = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "bankcountry"));
+	
+	//update
+	if (isset($_GET['update'])) {
+	
+		$accountholder   = trim($_POST['accountholder']);
+		$iban            = trim($_POST['iban']);
+		$bankname        = trim($_POST['bankname']);
+		$bankcountry     = trim($_POST['bankcountry']);
+	
+		Acountkitparam::update(array("id" => $checkaccountholder->id,"text" => $accountholder));
+		Acountkitparam::update(array("id" => $checkiban->id,"text" => $iban));
+		Acountkitparam::update(array("id" => $checkbankname->id,"text" => $bankname));
+		Acountkitparam::update(array("id" => $checkbankcountry->id,"text" => $bankcountry));
+		Acountkitparam::update(array("id" => $checkbankaccount->id,"text" => "true"));
+	
+		Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], "date" => date("Y-m-d H:i:s"), "title" => "updatebankaccount"));
+		
+		$_SESSION['result']=" به‌روزرسانی  حساب بانکی با موفقیت انجام شد ";
+		$_SESSION['alert']="success";
+		header("location: /dinero/bankaccount");
+	}
+	
+	$GLOBALS['GCMS']->assign('DineroAccountholder', $checkaccountholder);
+	$GLOBALS['GCMS']->assign('DineroIban', $checkiban);
+	$GLOBALS['GCMS']->assign('DineroBankname', $checkbankname);
+	$GLOBALS['GCMS']->assign('DineroBankcountry', $checkbankcountry);
+	
+}
+
+function basicinfo()
+{
+	if(!isset($_SESSION["gak_email"]))
+		exit(header("Location: /accountkit"));
+	
+	//check
+	$checkBasicinfo=Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "basicinfo"));
+	if (!isset($checkBasicinfo)){
+		
+		//insert basicinfo
+		$insert_basicinfo=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "basicinfo",
+				"text"    => "false",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_basicinfo);
+		//fullname
+		$insert_fullname=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "fullname",
+				"text"    => "",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_fullname);
+		//passportno
+		$insert_passportno=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "passportno",
+				"text"    => "",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_passportno);
+		//idnumber
+		$insert_idnumber=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "idnumber",
+				"text"    => "",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_idnumber);
+		//birthday
+		$insert_birthday=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "birthday",
+				"text"    => "",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_birthday);
+		//
+		
+	}
+	
+	$checkbasicinfo  = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "basicinfo"));
+	$checkfullname   = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "fullname"));
+	$checkpassportno = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "passportno"));
+	$checkidnumber   = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "idnumber"));
+	$checkbirthday   = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "birthday"));
+	
+	//update
+	if (isset($_GET['update'])) {
+		
+		$fullname   = trim($_POST['fullname']);
+		$passportno = trim($_POST['passportno']);
+		$idnumber   = trim($_POST['idnumber']);
+		$birthday   = trim($_POST['birthday']);
+		
+		Acountkitparam::update(array("id" => $checkfullname->id,"text" => $fullname));
+		Acountkitparam::update(array("id" => $checkpassportno->id,"text" => $passportno));
+		Acountkitparam::update(array("id" => $checkidnumber->id,"text" => $idnumber));
+		Acountkitparam::update(array("id" => $checkbirthday->id,"text" => $birthday));
+		Acountkitparam::update(array("id" => $checkbasicinfo->id,"text" => "true"));
+		
+		Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], "date" => date("Y-m-d H:i:s"), "title" => "updatebasicinfo"));
+		
+		$_SESSION['result']=" به‌روزرسانی اطلاعات اولیه با موفقیت انجام شد ";
+		$_SESSION['alert']="success";
+		header("location: /dinero/basicinfo");
+	}
+	
+	$GLOBALS['GCMS']->assign('DineroFullname', $checkfullname);
+	$GLOBALS['GCMS']->assign('DineroPassportno', $checkpassportno);
+	$GLOBALS['GCMS']->assign('DineroIdnumber', $checkidnumber);
+	$GLOBALS['GCMS']->assign('DineroBirthday', $checkbirthday);
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function offline()
 {
 	$lastRate = Dinerorate::get(array(
@@ -28,7 +230,7 @@ function offline()
 			"refrence" => "o-xe.com",
 	),false,array("by"=>'id',"sort"=>'DESC'));
 	
-	$rateEu =  $lastRate->ratesell+30;
+	$rateEu =  $lastRate->ratesell+ $GLOBALS['GCMS_SETTING']['dinero']['ratediff'];
 	$euTransfer = $_POST['moneytransfer'];
 	$tmTransfer = $euTransfer*$rateEu;
 	$arr_insert=array(
@@ -483,7 +685,7 @@ function add()
 				"refrence" => "o-xe.com",
 		),false,array("by"=>'id',"sort"=>'DESC'));
 		
-		$rateEu =  $lastRate->ratesell+30;
+		$rateEu =  $lastRate->ratesell+ $GLOBALS['GCMS_SETTING']['dinero']['ratediff'];
 		$euTransfer = $_POST['moneytransfer'];
 		$tmTransfer = $euTransfer*$rateEu;
 		if ($_POST['paymethod'] == "online"){

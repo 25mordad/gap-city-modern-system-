@@ -14,12 +14,12 @@
  * SMARTY
  *
  */
-/*
-function smarty_function_SAMPLE($params, &$smarty)
+function smarty_function_get_accountkitparam($params, &$smarty)
 {
-	//$params['SAMPLE'] 
+	//$params['iduser'] $params['type']
+	$row   = Acountkitparam::get(array("iduser" => $params['iduser'], "type" => $params['type']));
+	return $row->text;
 }
-*/
 /**
  * 
  * UTILITY

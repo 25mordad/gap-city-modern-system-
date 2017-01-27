@@ -12,6 +12,34 @@
  * @version 2.0
  *
  */
+if(isset($_SESSION["gak_email"])) {
+	//check basicinfo
+	$checkBasicinfo=Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "basicinfo"));
+	if (!isset($checkBasicinfo)){
+		$GLOBALS['GCMS']->assign('DineroAlarmBasicinfo', "true");
+	}else{
+		$GLOBALS['GCMS']->assign('DineroAlarmBasicinfo', "false");
+	}
+	//check bankaccount
+	$checkBankaccount=Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "bankaccount"));
+	if (!isset($checkBankaccount)){
+		$GLOBALS['GCMS']->assign('DineroAlarmBankaccount', "true");
+	}else{
+		$GLOBALS['GCMS']->assign('DineroAlarmBankaccount', "false");
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 //check last update
 $lastUpdate = strtotime($GLOBALS['GCMS_SETTING']['dinero']['lastUpdate']);

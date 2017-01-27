@@ -20,7 +20,7 @@ if(file_exists($utilityfile))
 function index()
 {
 	if(isset($_SESSION["gak_email"]))
-		exit(header("Location: /accountkit/dashboard"));
+		exit(header("Location: /dashboard"));
 	
 	if (isset($_GET['login']) and isset($_POST["code"])){
 	
@@ -48,7 +48,7 @@ function index()
 				//
 				$_SESSION['result'] ="با موفقیت وارد سایت شدید.";
 				$_SESSION['alert']  ="success";
-				exit(header("Location: /accountkit/dashboard"));
+				exit(header("Location: /dashboard"));
 			}else {
 				$_SESSION['result'] =" وضعیت کاربری شما غیرفعال شده است. با مدیر سایت تماس بگیرید.";
 				$_SESSION['alert']  ="warning";
@@ -65,6 +65,42 @@ function index()
 	}	
 }
 
+function changeEmail()
+{
+	if(!isset($_SESSION["gak_email"]))
+		header("location: /accountkit?redirect=".$_SERVER["REQUEST_URI"]);
+	
+	if (isset($_GET['changeemail']) and isset($_POST["code"]) ){
+		
+		$final = connecToAccKit($_POST["code"],$_POST["csrf_nonce"]);
+		
+		if (isset($final->error->message)){
+			$_SESSION['result'] =" خطا ";
+			$_SESSION['alert']  ="warning";
+			exit(header("Location: /accountkit/"));
+		}
+		
+		//check in DB
+		$checkEmail=AccountKit::get(array("email" => $final->email->address));
+		if(isset($checkEmail))
+		{
+			$_SESSION['result'] =" این ایمیل قبلا در سیستم ثبت شده. لطفا ایمیل دیگری وارد کنید ";
+			$_SESSION['alert']  = "warning";
+			exit(header("Location: /accountkit/changeEmail"));
+			
+		}else{
+			AccountKit::update(array("id" => $_SESSION["gak_id"],"email" => $final->email->address));
+			Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], "date" => date("Y-m-d H:i:s"), "title" => "changeEmail|".$_SESSION["gak_email"]));
+			$_SESSION["gak_email"] = $final->email->address;
+			//
+			$_SESSION['result'] =" ایمیل با موفقیت تغییر کرد ";
+			$_SESSION['alert']  ="success";
+			exit(header("Location: /accountkit/changeEmail"));
+		}
+		
+	}
+			
+}
 function activeNumber()
 {
 	if(!isset($_SESSION["gak_email"]))
@@ -94,7 +130,8 @@ function activeNumber()
 				$logTxt = "activeNumber";
 			else 
 				$logTxt = "changeNumber";
-			Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], "date" => date("Y-m-d H:i:s"), "title" => $logTxt."|".$final->phone->number));
+			Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], "date" => date("Y-m-d H:i:s"), "title" => $logTxt."|".$_SESSION["gak_number"]));
+			$_SESSION["gak_number"] = $final->phone->number;
 			//
 			$_SESSION['result'] =" شماره شما فعال شد ";
 			$_SESSION['alert']  ="success";
@@ -114,7 +151,7 @@ function dashboard()
 function register()
 {
 	if(isset($_SESSION["gak_email"]))
-		exit(header("Location: /accountkit/dashboard"));
+		exit(header("Location: /dashboard"));
 	
 	if (isset($_GET['login']) and isset($_POST["code"]) ){
 
@@ -174,7 +211,7 @@ function register()
 			$_SESSION['alert']  = "success";
 		}
 		
-		exit(header("Location: /accountkit/dashboard"));
+		exit(header("Location: /dashboard"));
 	}
 }
 

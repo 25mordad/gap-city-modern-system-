@@ -73,7 +73,7 @@ function new_comment($id_other, $cm_type)
 		else
 		{
 			$_SESSION['result']="Please try again.";
-			$_SESSION['alert']="error";
+			$_SESSION['alert']="danger";
 		}
 	}
 }

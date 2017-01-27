@@ -41,13 +41,25 @@ function show($id)
 			require_once(__COREROOT__."/libs/utility/comment.php");
 			if(isset($_GET['comment'])&&$_GET['comment']=="true")
 			{
-                if(isset($_POST['capcha'])&&(trim($_POST['capcha'])==""||trim($_POST['capcha'])!=$_SESSION['gcms_cpcha']) )
-                {
-                    $_SESSION['result'] = "Capcha code error.";
-                    $_SESSION['alert'] = "warning";
-                    header("location: /page/show/".$page->id);
-                }else{
+				//
+				setcookie("cm_author", trim($_POST['cm_author']), time()+300);
+				setcookie("cm_email", trim($_POST['cm_email']), time()+300);
+				setcookie("cm_url", trim($_POST['cm_url']), time()+300);
+				setcookie("cm_content", trim($_POST['cm_content']), time()+300);
+				
+				//
+				if(isset($_POST['g-recaptcha-response']))
+					$captcha=$_POST['g-recaptcha-response'];
+				if(!$captcha){
+					$_SESSION['result']="Please check I'm not a robot";
+					$_SESSION['alert']="warning";
+					exit(header("location: /page/show/".$page->id));
+				}else{
                     new_comment($id, "page");
+                    setcookie("cm_author", "" , time()-300);
+                    setcookie("cm_email", "" , time()-300);
+                    setcookie("cm_url", "", time()-300);
+                    setcookie("cm_content", trim($_POST['cm_content']), time()-300);
                     header("location: /page/show/".$id);
                     return;
                 }

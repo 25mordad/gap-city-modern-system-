@@ -1,7 +1,7 @@
 <li {if $part eq "admin"}class="active" {/if}>
     <a href="/gadmin">
         <i class="fa fa-dashboard"></i> <span>
-            میزکار
+            @@Dashboard@@
         </span>
     </a>
 </li>
