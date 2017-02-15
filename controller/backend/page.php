@@ -175,9 +175,16 @@ function edit($id)
 						"date_modified" => date("Y-m-d H:i:s")
 			);
 			Page::update($arr_update);
-			$_SESSION['result']="ویرایش انجام شد";
-			$_SESSION['alert']="success";
-			header("location: /gadmin/page/edit/".$id);
+			if (isset($_POST['backurl'])){
+				$_SESSION['result']="Successfully Edited";
+				$_SESSION['alert']="success";
+				header("location: ".$_POST['backurl']);
+			}else{
+				$_SESSION['result']="ویرایش انجام شد";
+				$_SESSION['alert']="success";
+				header("location: /gadmin/page/edit/".$id);
+			}
+			
 		}
 
         //find all img

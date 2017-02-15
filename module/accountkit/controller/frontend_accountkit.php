@@ -27,7 +27,7 @@ function index()
 		$final = connecToAccKit($_POST["code"],$_POST["csrf_nonce"]);
 		
 		if (isset($final->error->message)){
-			$_SESSION['result'] =" خطا ";
+			$_SESSION['result'] ="error";
 			$_SESSION['alert']  ="warning";
 			exit(header("Location: /accountkit/"));
 		}
@@ -46,17 +46,17 @@ function index()
 				$_SESSION["gak_level"]  = $checkEmail->level;
 				
 				//
-				$_SESSION['result'] ="با موفقیت وارد سایت شدید.";
+				$_SESSION['result'] ="Login successfully";
 				$_SESSION['alert']  ="success";
 				exit(header("Location: /dashboard"));
 			}else {
-				$_SESSION['result'] =" وضعیت کاربری شما غیرفعال شده است. با مدیر سایت تماس بگیرید.";
+				$_SESSION['result'] ="Your user is disabled. Contact with us.";
 				$_SESSION['alert']  ="warning";
 				exit(header("Location: /accountkit/"));
 			}
 				
 		}else{
-			$_SESSION['result'] =" شماره موبایل شما در سیستم ثبت نشده است ";
+			$_SESSION['result'] ="Your phone number is not registred";
 			$_SESSION['alert']  = "warning";
 			exit(header("Location: /accountkit"));
 		}
@@ -75,7 +75,7 @@ function changeEmail()
 		$final = connecToAccKit($_POST["code"],$_POST["csrf_nonce"]);
 		
 		if (isset($final->error->message)){
-			$_SESSION['result'] =" خطا ";
+			$_SESSION['result'] ="error";
 			$_SESSION['alert']  ="warning";
 			exit(header("Location: /accountkit/"));
 		}
@@ -84,7 +84,7 @@ function changeEmail()
 		$checkEmail=AccountKit::get(array("email" => $final->email->address));
 		if(isset($checkEmail))
 		{
-			$_SESSION['result'] =" این ایمیل قبلا در سیستم ثبت شده. لطفا ایمیل دیگری وارد کنید ";
+			$_SESSION['result'] ="This email had registred. Please try again.";
 			$_SESSION['alert']  = "warning";
 			exit(header("Location: /accountkit/changeEmail"));
 			
@@ -93,7 +93,7 @@ function changeEmail()
 			Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], "date" => date("Y-m-d H:i:s"), "title" => "changeEmail|".$_SESSION["gak_email"]));
 			$_SESSION["gak_email"] = $final->email->address;
 			//
-			$_SESSION['result'] =" ایمیل با موفقیت تغییر کرد ";
+			$_SESSION['result'] ="Email has changed successfully";
 			$_SESSION['alert']  ="success";
 			exit(header("Location: /accountkit/changeEmail"));
 		}
@@ -111,7 +111,7 @@ function activeNumber()
 		$final = connecToAccKit($_POST["code"],$_POST["csrf_nonce"]);
 		
 		if (isset($final->error->message)){
-			$_SESSION['result'] =" خطا ";
+			$_SESSION['result'] ="error";
 			$_SESSION['alert']  ="warning";
 			exit(header("Location: /accountkit/"));
 		}
@@ -120,7 +120,7 @@ function activeNumber()
 		$checkEmail=AccountKit::get(array("number" => $final->phone->number));
 		if(isset($checkEmail))
 		{
-			$_SESSION['result'] =" این شماره قبلا در سیستم ثبت شده. لطفا شماره دیگری وارد کنید ";
+			$_SESSION['result'] ="This number had registred. Please try again.";
 			$_SESSION['alert']  = "warning";
 			exit(header("Location: /accountkit/activeNumber"));
 			
@@ -133,7 +133,7 @@ function activeNumber()
 			Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], "date" => date("Y-m-d H:i:s"), "title" => $logTxt."|".$_SESSION["gak_number"]));
 			$_SESSION["gak_number"] = $final->phone->number;
 			//
-			$_SESSION['result'] =" شماره شما فعال شد ";
+			$_SESSION['result'] ="Your number is varified";
 			$_SESSION['alert']  ="success";
 			exit(header("Location: /accountkit/activeNumber"));
 		}
@@ -158,13 +158,13 @@ function register()
 		$final = connecToAccKit($_POST["code"],$_POST["csrf_nonce"]);
 		
 		if (isset($final->error->message)){
-			$_SESSION['result'] =" خطا ";
+			$_SESSION['result'] ="error";
 			$_SESSION['alert']  ="warning";
 			exit(header("Location: /accountkit/"));
 		}
 			
 		if (!isset($final->email->address)){
-			$_SESSION['result'] =" خطا ";
+			$_SESSION['result'] ="error";
 			$_SESSION['alert']  ="warning";
 			exit(header("Location: /accountkit/"));
 		}
@@ -182,10 +182,10 @@ function register()
 				$_SESSION["gak_level"]  = $checkEmail->level;
 				
 				//	
-				$_SESSION['result'] ="با موفقیت وارد سایت شدید.";
+				$_SESSION['result'] ="Login successfully";
 				$_SESSION['alert']  ="success";
 			}else {
-				$_SESSION['result'] =" وضعیت کاربری شما غیرفعال شده است. با مدیر سایت تماس بگیرید.";
+				$_SESSION['result'] ="Your user is disabled. Contact with us.";
 				$_SESSION['alert']  ="warning";
 				exit(header("Location: /accountkit/"));
 			}
@@ -207,7 +207,7 @@ function register()
 			$_SESSION["gak_number"] = "";
 			$_SESSION["gak_level"]  = "customer";
 			//
-			$_SESSION['result'] = " ثبت‌نام با موفقیت انجام شد";
+			$_SESSION['result'] = "Registered successfully";
 			$_SESSION['alert']  = "success";
 		}
 		
