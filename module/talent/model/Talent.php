@@ -1,6 +1,6 @@
 <?php
 /**
- * dinero.php
+ * SAMPLE.php
  *
  * This file is part of GCMS > MODULE MODEL
  * The file is part of the layer for interacting with database.
@@ -11,11 +11,6 @@
  * @version 2.0
  *
  */
-require_once(__COREROOT__."/module/dinero/model/Dinerorder.php");
-require_once(__COREROOT__."/module/dinero/model/Dinerorate.php");
-require_once(__COREROOT__."/module/dinero/model/Wallet.php");
-require_once(__COREROOT__."/module/dinero/model/Dineroadv.php");
-
 /* 
 class SAMPLE
 {

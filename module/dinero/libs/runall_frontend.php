@@ -27,6 +27,30 @@ if(isset($_SESSION["gak_email"])) {
 	}else{
 		$GLOBALS['GCMS']->assign('DineroAlarmBankaccount', "false");
 	}
+	//check avatar
+	$checkAvatar=Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "avatar"));
+	if ($checkAvatar->text == "confirm" ){
+		$GLOBALS['GCMS']->assign('DineroAlarmAvatar', "false");
+		$checkAvatarPath=Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "avatarpath"));
+		$GLOBALS['GCMS']->assign('DineroAvatarPath', $checkAvatarPath);
+	}else{
+		$GLOBALS['GCMS']->assign('DineroAlarmAvatar', "true");
+	}
+	//check idfoto
+	$checkIdfoto=Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "idfoto"));
+	if ($checkIdfoto->text == "confirm" ){
+		$GLOBALS['GCMS']->assign('DineroAlarmIdfoto', "false");
+	}else{
+		$GLOBALS['GCMS']->assign('DineroAlarmIdfoto', "true");
+	}
+	//check if wallet
+	$checkWallet=Wallet::get(array("id_user" => $_SESSION["gak_id"], "currency" => "Toman"));
+	if (!isset($checkWallet)){
+		$GLOBALS['GCMS']->assign('DineroCheckWallet', false);
+	}else{
+		$GLOBALS['GCMS']->assign('DineroWallet', $checkWallet);
+		$GLOBALS['GCMS']->assign('DineroCheckWallet', true);
+	}
 }
 
 

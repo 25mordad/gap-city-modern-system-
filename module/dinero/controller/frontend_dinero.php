@@ -19,7 +19,203 @@ if(file_exists($utilityfile))
 
 function index()
 {
-	//index
+	//find advs
+	$Advertisements = Dineroadv::get(array("status" => "active"),true);
+	$GLOBALS['GCMS']->assign('Advertisements', $Advertisements);
+}
+
+function adv()
+{
+	//advertisment
+	if(!isset($_SESSION["gak_email"]))
+		exit(header("Location: /accountkit"));
+	//check if wallet
+	$checkWallet=Wallet::get(array("id_user" => $_SESSION["gak_id"], "currency" => "Toman"));
+	if (!isset($checkWallet)){
+		if (isset($_GET['update'])){
+			//insert wallet toman
+			$insert_wallet=array(
+					"id_user"        => $_SESSION["gak_id"],
+					"amount"         => "0",
+					"currency"       => "Toman",
+					"iban"           => $_POST['iban'],
+					"cardno"         => $_POST['cardno'],
+					"accountholder"  => $_POST['accountholder'],
+					"bankname"       => $_POST['iban'],
+					"expdate"        => date("Y-m-d"),
+					"status"         => "active"
+			);
+			Wallet::insert($insert_wallet);
+			$_SESSION['result']=" کیف پول تومان شما با موفقیت ایجاد شد. ";
+			$_SESSION['alert']="success";
+			header("location: /dinero/adv");
+		}
+	}else{
+		if (isset($_GET['add'])){
+			//insert wallet toman
+			$insert_wallet=array(
+					"id_user"        => $_SESSION["gak_id"],
+					"currency"       => "Euro",
+					"amount"         => $_POST['amount'],
+					"minmax"         => $_POST['mintransaction']."|"
+									   .$_POST['maxtransaction']."|"
+									   .$_POST['maxanswer']."|"
+									   .$_POST['maxtransfer'],
+					"locations"      => "es|",
+					"method"         => "bank|",
+					"status"         => "active",
+					"text"           => $_POST['text'],
+					"time"           => date("Y-m-d H:i"),
+			);
+			Dineroadv::insert($insert_wallet);
+			$_SESSION['result']=" آگهی شما با موفقیت ثبت شد. ";
+			$_SESSION['alert']="success";
+			header("location: /dinero/adv");
+		}
+	}
+		
+	
+}
+
+function documents()
+{
+	if(!isset($_SESSION["gak_email"]))
+		exit(header("Location: /accountkit"));
+	
+	//check
+	$checkAvatar=Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "avatar"));
+	if (!isset($checkAvatar)){
+		//insert avatar
+		$insert_avatar=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "avatar",
+				"text"    => "false",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_avatar);
+		//insert avatarpath
+		$insert_avatarpath=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "avatarpath",
+				"text"    => "",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_avatarpath);
+		//insert idfoto
+		$insert_idfoto=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "idfoto",
+				"text"    => "false",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_idfoto);
+		//insert idfotopath
+		$insert_idfotopath=array(
+				"iduser"  => $_SESSION["gak_id"],
+				"type"    => "idfotopath",
+				"text"    => "",
+				"date"    => date("Y-m-d H:i:s")
+		);
+		Acountkitparam::insert($insert_idfotopath);
+			
+	}
+	$checkAvatar     = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "avatar"));
+	$checkAvatarpath = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "avatarpath"));
+	$checkIdfoto     = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "idfoto"));
+	$checkIdfotopath = Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "idfotopath"));
+		
+	if (isset($_GET['update']))
+	{
+		$uploaddir = 'uploads'.DIRECTORY_SEPARATOR.'dinero'.DIRECTORY_SEPARATOR.'avatar'.DIRECTORY_SEPARATOR.$_SESSION["gak_id"].DIRECTORY_SEPARATOR.date("Y-m-d");
+		if(!is_dir($uploaddir))
+			mkdir($uploaddir, 0755, true);
+		$check = getimagesize($_FILES["avatar"]["tmp_name"]);
+		$tempFile = $_FILES['avatar']['tmp_name'];
+		$targetPath = __ROOT__ . DIRECTORY_SEPARATOR . $uploaddir . DIRECTORY_SEPARATOR;
+		
+		
+		if($check !== false) {
+			if ($_FILES["avatar"]["size"] < 500000 ) {
+				$getMime=explode('.', $_FILES['avatar']['name']);
+				$mime=strtolower(end($getMime));
+				$imName = rand(10000,99999) .".".$mime;
+				$targetFile =  $targetPath.$imName;
+				if (move_uploaded_file($tempFile, $targetFile)) {
+					//
+					Acountkitparam::update(array("id" => $checkAvatar->id,"text" => "pending"));
+					Acountkitparam::update(array("id" => $checkAvatarpath->id,"text" => DIRECTORY_SEPARATOR .$uploaddir.DIRECTORY_SEPARATOR.$imName));
+					Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], 
+							"date" => date("Y-m-d H:i:s"), "title" => "uploadavatar"));
+						
+					//
+					$_SESSION['result']=" با موفقیت آپلود شد.  ";
+					$_SESSION['alert']="success";
+					header("location: /dinero/documents");
+				} else {
+					$_SESSION['result']=" خطا، دوباره تلاش کنید ";
+					$_SESSION['alert']="danger";
+					header("location: /dinero/documents");
+				}
+			}else{
+				$_SESSION['result']=" حجم فایل ارسالی شما بیشتر از ۵۰۰ کیلو است. ";
+				$_SESSION['alert']="danger";
+				header("location: /dinero/documents");
+			}
+		} else {
+			$_SESSION['result']=" فایل ارسالی شما فرمت تصویر ندارد ";
+			$_SESSION['alert']="danger";
+			header("location: /dinero/documents");
+		}
+		
+	}
+	if (isset($_GET['upload']))
+	{
+		$uploaddir = 'uploads'.DIRECTORY_SEPARATOR.'dinero'.DIRECTORY_SEPARATOR .$_SESSION["gak_id"].DIRECTORY_SEPARATOR.date("Ymd").DIRECTORY_SEPARATOR.rand(10000,99999);
+		if(!is_dir($uploaddir))
+			mkdir($uploaddir, 0755, true);
+		$check = getimagesize($_FILES["idcard"]["tmp_name"]);
+		$tempFile = $_FILES['idcard']['tmp_name'];
+		$targetPath = __ROOT__ . DIRECTORY_SEPARATOR .$uploaddir . DIRECTORY_SEPARATOR;
+		
+		
+		if($check !== false) {
+			if ($_FILES["idcard"]["size"] < 500000 ) {
+				$getMime=explode('.', $_FILES['idcard']['name']);
+				$mime=strtolower(end($getMime));
+				$imName = rand(10000,99999) .".".$mime;
+				$targetFile =  $targetPath.$imName;
+				if (move_uploaded_file($tempFile, $targetFile)) {
+					//
+					Acountkitparam::update(array("id" => $checkIdfoto->id,"text" => "pending"));
+					Acountkitparam::update(array("id" => $checkIdfotopath->id,"text" => DIRECTORY_SEPARATOR .$uploaddir.DIRECTORY_SEPARATOR.$imName));
+					Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], 
+							"date" => date("Y-m-d H:i:s"), "title" => "uploadidfoto"));
+						
+					//
+					$_SESSION['result']=" با موفقیت آپلود شد.  ";
+					$_SESSION['alert']="success";
+					header("location: /dinero/documents");
+				} else {
+					$_SESSION['result']=" خطا، دوباره تلاش کنید ";
+					$_SESSION['alert']="danger";
+					header("location: /dinero/documents");
+				}
+			}else{
+				$_SESSION['result']=" حجم فایل ارسالی شما بیشتر از ۵۰۰ کیلو است. ";
+				$_SESSION['alert']="danger";
+				header("location: /dinero/documents");
+			}
+		} else {
+			$_SESSION['result']=" فایل ارسالی شما فرمت تصویر ندارد ";
+			$_SESSION['alert']="danger";
+			header("location: /dinero/documents");
+		}
+		
+	}
+	$GLOBALS['GCMS']->assign('DineroAvatar', $checkAvatar);
+	$GLOBALS['GCMS']->assign('DineroAvatarpath', $checkAvatarpath);
+	$GLOBALS['GCMS']->assign('DineroIdfoto', $checkIdfoto);
+	$GLOBALS['GCMS']->assign('DineroIdfotopath', $checkIdfotopath);
 }
 
 function bankaccount()
