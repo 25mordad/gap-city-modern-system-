@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS `gcms_rel_pro_param` (
   `id_param` bigint(20) NOT NULL,
   `value` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=243 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
      " ;
 	
 	echo "

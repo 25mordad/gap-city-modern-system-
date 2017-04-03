@@ -15,6 +15,8 @@ require_once(__COREROOT__."/module/dinero/model/Dinerorder.php");
 require_once(__COREROOT__."/module/dinero/model/Dinerorate.php");
 require_once(__COREROOT__."/module/dinero/model/Wallet.php");
 require_once(__COREROOT__."/module/dinero/model/Dineroadv.php");
+require_once(__COREROOT__."/module/dinero/model/Dinerotrade.php");
+require_once(__COREROOT__."/module/dinero/model/Wallettransactions.php");
 
 /* 
 class SAMPLE

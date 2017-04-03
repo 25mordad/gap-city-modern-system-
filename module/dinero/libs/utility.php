@@ -14,12 +14,16 @@
  * SMARTY
  *
  */
-/*
-function smarty_function_SAMPLE($params, &$smarty)
+function smarty_function_get_dineroadv($params, &$smarty)
 {
-	//$params['SAMPLE'] 
+	//$params['idadv']
+	$GLOBALS['GCMS']->assign('Adv', Dineroadv::get(array("id" => $params['idadv'])));
 }
-*/
+function smarty_function_get_wallet($params, &$smarty)
+{
+	//$params['id']
+	$GLOBALS['GCMS']->assign('Wallet', Wallet::get(array("id_user" => $params['id'], "currency" => "Toman")));
+}
 /**
  * 
  * UTILITY

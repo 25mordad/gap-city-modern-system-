@@ -5,7 +5,7 @@
  *
  * This file is part of GCMS > MODULE CONTROLLER
  * The file is part of the layer for controlling the system.
- * Linked place in VIEW: frontend > SAMPLE
+ * Linked place in VIEW: frontend > dinero
  *
  * @author dahdash  <dahdash@gmail.com>
  * @author 25Mordad <25Mordad@gmail.com>
@@ -13,6 +13,7 @@
  *
  */
 
+require_once(__COREROOT__."/module/dinero/controller/admin.php");
 $utilityfile = __COREROOT__."/module/dinero/libs/utility.php";
 if(file_exists($utilityfile))
 	require_once($utilityfile);
@@ -22,6 +23,839 @@ function index()
 	//find advs
 	$Advertisements = Dineroadv::get(array("status" => "active"),true);
 	$GLOBALS['GCMS']->assign('Advertisements', $Advertisements);
+}
+
+function advs($id)
+{
+	//find advs
+	$Advertisements = Dineroadv::get(array("id_user" => $_SESSION["gak_id"]),true);
+	if (isset($id)){
+		$Adv = Dineroadv::get(array("id" => $id,"id_user" => $_SESSION["gak_id"]));
+		if (isset($_GET['edit'])){
+			//update
+			$arr_update=array(
+					"id"             => $id,
+					"amount"         => $_POST['amount'],
+					"minmax"         => $_POST['mintransaction']."|"
+					.$_POST['maxtransaction']."|"
+					.$_POST['maxanswer']."|"
+					.$_POST['maxtransfer'],
+					"status"         => $_POST['status'],
+					"text"           => $_POST['text'],
+			);
+			Dineroadv::update($arr_update);
+			$_SESSION['result']=" تغییرات با موفقیت انجام شد ";
+			$_SESSION['alert']="success";
+			exit(header("Location: /dinero/advs/"));
+		}
+	}
+	
+	$GLOBALS['GCMS']->assign('Advertisements', $Advertisements);
+	$GLOBALS['GCMS']->assign('Adv', $Adv);
+}
+function transacts()
+{
+	if(!isset($_SESSION["gak_email"])){
+		$_SESSION['result']="لطفا وارد سایت شوید.";
+		$_SESSION['alert']="warning";
+		exit(header("Location: /accountkit"));
+	}
+	//find trades
+	$Trades = dinerotrade::get(array("id_seller" => $_SESSION["gak_id"], "not_trade_status" => "deleted"),true,
+			array("by" => "time","sort" => "DESC")
+			);
+	$GLOBALS['GCMS']->assign('Trades', $Trades);
+}
+function trades()
+{
+	if(!isset($_SESSION["gak_email"])){
+		$_SESSION['result']="لطفا وارد سایت شوید.";
+		$_SESSION['alert']="warning";
+		exit(header("Location: /accountkit"));
+	}
+	//find trades
+	$Trades = dinerotrade::get(array("id_buyer" => $_SESSION["gak_id"], "not_trade_status" => "deleted"),true,
+			array("by" => "time","sort" => "DESC")
+			);
+	$GLOBALS['GCMS']->assign('Trades', $Trades);
+}
+
+function wallet()
+{
+	//wallet
+	if(!isset($_SESSION["gak_email"])){
+		$_SESSION['result']="لطفا وارد سایت شوید.";
+		$_SESSION['alert']="warning";
+		exit(header("Location: /accountkit"));
+	}
+	if ($_GET['pay']){
+		$arr_insert=array(
+				"id_user"   => $_SESSION["gak_id"],
+				"amount"    => $_POST['amount'],
+				"txt"       => "",
+				"date"      => date("Y-m-d H:i:s"),
+				"bank_info" => "Payment:Offline|Tracking:".$_POST['tracking']."|Bank:".$_POST['bank']."|date:".$_POST['time'],
+				"status"    => "pending"
+		);
+	
+		Pays::insert($arr_insert);
+		//start send email
+		$bodyStatusDinero= '
+						<div>
+                          <!--[if mso]>
+                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
+                            <w:anchorlock/>
+                            <center>
+                          <![endif]-->
+                              <a href="$_SERVER[HTTP_HOST]"
+                        style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
+								واریز به کیف پول متظر تایید شما است
+							  </a>
+                          <!--[if mso]>
+                            </center>
+                          </v:rect>
+                          <![endif]-->
+                        </div>
+					';
+		
+		$bodyInfo= "
+					  <div>
+				
+						<br>
+						<a href=\"".$_SERVER['HTTP_HOST']."/dinero/settlements\">
+						".$_SERVER['HTTP_HOST']."/dinero/settlements
+						</a>
+								
+	                  </div>
+					";
+		$bodyTransaction= '
+				
+					';
+		//sendingblue email
+		require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
+		require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+		$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+		$maildata = array( "to" => array($GLOBALS['GCMS_SETTING']['dinero']['dineroAdminEmail']=>"Dinero Admin"),
+				"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+				"subject" => "Adv Created Alarm ".$_SERVER['HTTP_HOST'],
+				"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
+				"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+		);
+		$mailin->send_email($maildata);
+		///end send mail
+		$_SESSION['result']=" پرداخت شما ثبت شد، منتظر تایید سیستم باشید. ";
+		$_SESSION['alert']="success";
+		exit(header("Location: /dinero/wallet"));
+	}
+	//find wallettransactions
+	//check if wallet
+	$checkWallet=Wallet::get(array("id_user" => $_SESSION["gak_id"], "currency" => "Toman"));
+	if ($_GET['withdraw'] and $_POST['toman']){
+		if ($_POST['toman'] <= $checkWallet->amount){
+			if ($_POST['time'] == "week"){
+				$insert_wallettransaction=array(
+						"id_wallet" => $checkWallet->id,
+						"type"      => "request-withdraw",
+						"amount"    => $_POST['toman'],
+						"status"    => "pending",
+						"text"      => "Withdraw Request - 1 week",
+						"time"      => date("Y-m-d H:i:s" ,strtotime("+7 day", strtotime('now')))
+				);
+				$walletTransaction = Wallettransactions::insert($insert_wallettransaction);
+				
+			}else{
+				$onePercent = ceil($_POST['toman']*1/100);
+				$insert_wallettransaction=array(
+						"id_wallet" => $checkWallet->id,
+						"type"      => "request-withdraw",
+						"amount"    => $_POST['toman']-$onePercent,
+						"status"    => "pending",
+						"text"      => "Withdraw Request - 1 day",
+						"time"      => date("Y-m-d H:i:s" ,strtotime("+1 day", strtotime('now')))
+				);
+				$walletTransaction = Wallettransactions::insert($insert_wallettransaction);
+				//
+				$insert_wallettransaction=array(
+						"id_wallet" => $checkWallet->id,
+						"type"      => "withdraw",
+						"amount"    => $onePercent,
+						"status"    => "confirm",
+						"text"      => "withdraw 1% of ".$_POST['toman']. " for 1 day withdraw method",
+						"time"      => date("Y-m-d H:i:s")
+				);
+				$walletTransaction = Wallettransactions::insert($insert_wallettransaction);
+				
+			}
+			
+			//update
+			$arr_update=array(
+					"id"          => $checkWallet->id,
+					"amount"      => $checkWallet->amount - $_POST['toman']
+			);
+			Wallet::update($arr_update);
+			//log
+			Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"],
+					"date" => date("Y-m-d H:i:s"), "title" => "walletRequestWithdraw"));
+			//start send email
+			$bodyStatusDinero= '
+						<div>
+                          <!--[if mso]>
+                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
+                            <w:anchorlock/>
+                            <center>
+                          <![endif]-->
+                              <a href="$_SERVER[HTTP_HOST]"
+                        style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
+								یک درخواست تسویه  ، ایجاد شد
+							  </a>
+                          <!--[if mso]>
+                            </center>
+                          </v:rect>
+                          <![endif]-->
+                        </div>
+					';
+			
+			$bodyInfo= "
+					  <div>
+					
+						<br>
+						<a href=\"".$_SERVER['HTTP_HOST']."/dinero/advertisement/".$lastInsertId."\">
+						".$_SERVER['HTTP_HOST']."/dinero/advertisement/".$lastInsertId."
+						</a>
+								
+	                  </div>
+					";
+			$bodyTransaction= '
+					
+					';
+			//sendingblue email
+			require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
+			require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+			$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+			$maildata = array( "to" => array($GLOBALS['GCMS_SETTING']['dinero']['dineroAdminEmail']=>"Dinero Admin"),
+					"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+					"subject" => "Adv Created Alarm ".$_SERVER['HTTP_HOST'],
+					"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
+					"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+			);
+			$mailin->send_email($maildata);
+			///end send mail
+			$_SESSION['result']=" درخواست تسویه شما ثبت شد. ";
+			$_SESSION['alert']="success";
+			exit(header("Location: /dinero/wallet"));
+		}else{
+			$_SESSION['result']=" نمی‌توانید بیشتر از مبلغ موجودی، درخواست تسویه حساب داشته باشید ";
+			$_SESSION['alert']="danger";
+			exit(header("Location: /dinero/wallet?withdraw=true"));
+		}
+	}
+	$transactions = Wallettransactions::get(array("id_wallet" => $checkWallet->id),true,
+			array("by" => "time","sort" => "DESC")
+			);
+	$GLOBALS['GCMS']->assign('transactions', $transactions);
+}
+
+function transact($id)
+{
+	//transact
+	if(!isset($_SESSION["gak_email"])){
+		$_SESSION['result']="لطفا وارد سایت شوید.";
+		$_SESSION['alert']="warning";
+		exit(header("Location: /accountkit"));
+	}
+	//check
+	$checkTrade=Dinerotrade::get(array("id" => $id,"id_seller" => $_SESSION["gak_id"]));
+	if(!isset($checkTrade) or !isset($id)){
+		$_SESSION['result']=" چنین مبادله‌ای وجود ندارد. ";
+		$_SESSION['alert']="warning";
+		exit(header("Location: /dinero/transacts"));
+	}
+	$from = new DateTime($checkTrade->time);
+	$diff = $from->diff(new DateTime('now'));
+	$lastChance = $diff->y * 100 + $diff->m * 100 + $diff->d * 100 + $diff->h * 100 + $diff->i ;
+	//more than 20 mins
+	if ($checkTrade->buyerpay_status == "pending"){
+		if ($lastChance > 20){
+			//update trade - delete
+			$arr_update=array(
+					"id"                => $checkTrade->id,
+					"trade_status"      => "deleted",
+			);
+			Dinerotrade::update($arr_update);
+			$_SESSION['result']=" زمان پرداخت تومان برای مبادله تمام شده. مبادله جدید ایجاد کنید ";
+			$_SESSION['alert']="warning";
+			exit(header("Location: /dinero/transacts"));
+		}
+	}
+	//
+	if (isset($_GET['act'])){
+		require_once(__COREROOT__."/module/dinero/controller/trade.php");
+		switch ($_GET['do']) {
+			case "send" :
+				transferBySeller($_FILES["dox"],$_POST['text'],$checkTrade);
+				break;
+			case "cancel" :
+				$transferAmount = findTransferAmount($checkTrade->amount);
+				cancelBySeller($_POST['reason'],$_POST['text'],$checkTrade,$transferAmount);
+				break;
+		}
+	}
+	
+	$GLOBALS['GCMS']->assign('TradeTimeLeft', $lastChance);
+	$GLOBALS['GCMS']->assign('Trade', $checkTrade);
+		
+}
+
+function trade($id)
+{
+	//trade
+	if(!isset($_SESSION["gak_email"])){
+		$_SESSION['result']="لطفا وارد سایت شوید.";
+		$_SESSION['alert']="warning";
+		exit(header("Location: /accountkit"));
+	}
+	//check
+	$checkTrade=Dinerotrade::get(array("id" => $id,"id_buyer" => $_SESSION["gak_id"]));
+	if(!isset($checkTrade) or !isset($id) ){
+		$_SESSION['result']=" چنین مبادله‌ای وجود ندارد. ";
+		$_SESSION['alert']="warning";
+		exit(header("Location: /dinero/trades"));
+	}
+	//more than 20 mins
+	if ($checkTrade->buyerpay_status == "pending"){
+		$from = new DateTime($checkTrade->time);
+		$diff = $from->diff(new DateTime('now'));
+		$lastChance = $diff->y * 100 + $diff->m * 100 + $diff->d * 100 + $diff->h * 100 + $diff->i ;
+		if ($lastChance > 20){
+			//update trade - delete
+			$arr_update=array(
+					"id"                => $checkTrade->id,
+					"trade_status"      => "deleted",
+			);
+			Dinerotrade::update($arr_update);
+			$_SESSION['result']=" زمان پرداخت تومان برای مبادله تمام شده. مبادله جدید ایجاد کنید ";
+			$_SESSION['alert']="warning";
+			exit(header("Location: /dinero/trades"));
+		}
+	}
+	
+	// 
+	$transferAmount = findTransferAmount($checkTrade->amount);
+	if (isset($_GET['payment'])){
+
+		switch ($_GET['payment']) {
+			case "wallet" :
+				
+				break;
+			case "online" :
+				$totalToman = $checkTrade->amount*$checkTrade->exchange_rate + $checkTrade->exchange_rate * $transferAmount;
+				zarinType($totalToman,"Trade Reference: ".$checkTrade->id*951753,$checkTrade->id,$_SESSION["gak_email"]);
+				break;
+		}
+	}
+	if (isset($_GET['act'])){
+		switch ($_GET['do']) {
+			case "confirm" :
+				// TODO add user comment
+				
+				//update trade
+				$arr_update=array(
+						"id"                => $checkTrade->id,
+						"trade_status"      => "complete",
+				);
+				Dinerotrade::update($arr_update);
+				//return amount to seller wallet
+				$sellerAmount = $checkTrade->exchange_rate*$checkTrade->amount + (floor($checkTrade->amount*2.5/100)) * $checkTrade->exchange_rate;
+				//find seller wallet
+				$sellerWallet   = Wallet::get(array("id_user" => $checkTrade->id_seller));
+				//update wallet and add transaction
+				//insert
+				$insert_wallettransaction=array(
+						"id_wallet" => $sellerWallet->id,
+						"type"      => "deposit",
+						"amount"    => $sellerAmount,
+						"status"    => "confirm",
+						"text"      => "Automaticly release by system. Trade #".$checkTrade->id*951753 ." complete",
+						"time"      => date("Y-m-d H:i:s")
+				);
+				Wallettransactions::insert($insert_wallettransaction);
+				//update
+				$arr_update=array(
+						"id"          => $sellerWallet->id,
+						"amount"      => $sellerWallet->amount + $sellerAmount
+				);
+				Wallet::update($arr_update);
+				//log
+				Accountkitlog::insert(array("iduser" => $checkTrade->id_seller,
+						"date" => date("Y-m-d H:i:s"), "title" => "systemWalletdeposit"));
+				Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"],
+						"date" => date("Y-m-d H:i:s"), "title" => "completeTrade"));
+				
+				$_SESSION['result']=" با سپاس ";
+				$_SESSION['alert']="success";
+				exit(header("Location: /dinero/trade/".$id));
+				break;
+			case "complain" :
+					if ($_POST['dinero'] == "accept"){
+						//update trade
+						$arr_update=array(
+								"id"                => $checkTrade->id,
+								"trade_status"      => "complain",
+						);
+						Dinerotrade::update($arr_update);
+						//log
+						Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"],
+								"date" => date("Y-m-d H:i:s"), "title" => "complainTrade"));
+						$_SESSION['result']=" درخواست شما ثبت شد. ";
+						$_SESSION['alert']="success";
+						exit(header("Location: /dinero/trade/".$id));
+					}else{
+						$_SESSION['result']=" برای اینکه درخواست شما مورد بررسی قرار گیرد، «داوری توسط دینرو» را تایید کنید. ";
+						$_SESSION['alert']="warning";
+						exit(header("Location: /dinero/trade/".$id));
+					}
+				break;
+		}
+	}
+	$GLOBALS['GCMS']->assign('Trade', $checkTrade);
+	$GLOBALS['GCMS']->assign('TransferAmount', $transferAmount);
+	
+}
+
+function tradeback()
+{
+	//advertisment
+	if(!isset($_SESSION["gak_email"])){
+		$_SESSION['result']="لطفا وارد سایت شوید.";
+		$_SESSION['alert']="warning";
+		exit(header("Location: /accountkit"));
+	}
+	$MerchantID = $GLOBALS['GCMS_SETTING']['pays']['merchantID'];
+	$Authority = $_GET['Authority'];
+	$pay=Pays::get(array("id" => $_GET['oid']));
+	if($pay->id_user!= $_SESSION["gak_id"])
+	{
+		$_SESSION['result']="یه چیزی ، یه جایی اشتباه شده";
+		$_SESSION['alert']="danger";
+		header("location: /dashboard");
+		exit();
+	}
+	$Amount = $pay->amount;
+		
+	if ($_GET['Status'] == 'OK') {
+		$client = new SoapClient('https://www.zarinpal.com/pg/services/WebGate/wsdl', ['encoding' => 'UTF-8']);
+		
+		$result = $client->PaymentVerification(
+				[
+						'MerchantID' => $MerchantID,
+						'Authority' => $Authority,
+						'Amount' => $Amount,
+				]
+				);
+		
+		if ($result->Status == 100) {
+			//check
+			$checkTrade=Dinerotrade::get(array("id" => $_GET['sfid'],"id_buyer" => $_SESSION["gak_id"]));
+			if (!isset($checkTrade)){
+				$_SESSION['result']="پرداخت شما تایید نشد.";
+				$_SESSION['alert']="danger";
+				exit(header("Location: /dashboard"));
+			}
+			//update pays
+			$arr_update=array(
+					"id" => $_GET['oid'],
+					"bank_info" => $pay->bank_info."refID:".$result->RefID ,
+					"status" => "confirm"
+			);
+			Pays::update($arr_update);
+			//update trade
+			$arr_update=array(
+					"id"               => $_GET['sfid'],
+					"trade_status"     => "buyerpaid",
+					"buyerpay_status"  => "confirm",
+					"sellerpay_status" => "pending",
+					"buyerpay_details" => "id:".$_GET['oid']."|".$pay->bank_info."refID:".$result->RefID
+			);
+			Dinerotrade::update($arr_update);
+			//update adv
+			//check adv
+			$checkAdv=Dineroadv::get(array("id" => $checkTrade->id_adv));
+			$updateAmount = $checkAdv->amount - $checkTrade->amount;
+			$arr_update=array(
+					"id"         => $checkTrade->id_adv,
+					"amount"     => $updateAmount
+			);
+			Dineroadv::update($arr_update);
+			//user logs
+			Accountkitlog::insert(array(
+					"iduser" => $_SESSION["gak_id"], 
+					"date" => date("Y-m-d H:i:s"), 
+					"title" => "tradePaid"));
+			
+			//send emails and sms
+			//todo shortlink
+			// AIzaSyAoiuf_ls2yJa9AeKYFNiebhKSTDNhywnA goo.gl
+			$seller   = AccountKit::get(array("iduser" => $checkTrade->id_seller));
+			$buyer   = AccountKit::get(array("iduser" => $checkTrade->id_buyer));
+			$sellerFullname = Acountkitparam::get(array("iduser" => $checkTrade->id_seller, "type" => "fullname"));
+			$buyerFullname = Acountkitparam::get(array("iduser" => $checkTrade->id_buyer, "type" => "fullname"));
+			$buyerBankname= Acountkitparam::get(array("iduser" => $checkTrade->id_buyer, "type" => "bankname"));
+			$buyerIban= Acountkitparam::get(array("iduser" => $checkTrade->id_buyer, "type" => "iban"));
+			$transferAmount = findTransferAmount($checkTrade->amount);
+			$token = $GLOBALS['GCMS_SETTING']['dinero']['smstoken'];
+			$params = array(
+					'to' => $seller->number,
+					'from' => 'Info',
+					'message' => "Trade for ".$checkTrade->amount ."€ "
+					."https://24dinero.com/"
+					,
+			);
+			//sms_send($params,$token);
+			
+			//start send email
+			$bodyStatusDineroSeller= '
+						<div>
+                          <!--[if mso]>
+                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
+                            <w:anchorlock/>
+                            <center>
+                          <![endif]-->
+                              <a href="$_SERVER[HTTP_HOST]"
+                        style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
+								درخواست انتقال یورو، لطفا سریعا اقدام کنید
+							  </a>
+                          <!--[if mso]>
+                            </center>
+                          </v:rect>
+                          <![endif]-->
+                        </div>
+					';
+				
+			$bodyInfoSeller= "
+				  <div>
+
+Payment has confirmed for your advertisements on 24dinero.com.
+ <br>
+Transfer amount:".$checkTrade->amount ."€   <br>
+Bank: ".$buyerBankname->text."<br>
+Beneficiary Name:  ".$buyerFullname->text."<br>
+IBAN: ".$buyerIban->text."<br>
+
+You can confirm or cancel the transaction on the following link: <br>
+
+<a href=\"".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."\">
+						".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."
+						</a>
+
+                  </div>
+					";
+					$bodyTransactionSeller= '
+					<table border="0" cellpadding="0" cellspacing="0" width="600" class="w320" style="height:100%;">
+              <tr>
+                <td valign="top" class="mobile-padding" style="padding:20px;">
+                  <table cellspacing="0" cellpadding="0" width="100%">
+                    <tr>
+                      <td style="padding-right:20px">
+                        <b>Euro request</b>
+                      </td>
+                      <td style="padding-right:20px">
+                        <b>Euro Rate</b>
+                      </td>
+                      <td>
+                        <b>Total Toman</b>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7; ">
+                       '.number_format($checkTrade->amount).'
+                      </td>
+                      <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7;">
+                        '.number_format($checkTrade->exchange_rate).'
+                      </td>
+                      <td style="padding-top:5px; border-top:1px solid #E7E7E7;" class="mobile">
+                        '.number_format($checkTrade->exchange_rate*$checkTrade->amount).'
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7; ">
+						'.number_format(floor($checkTrade->amount*2.5/100)).' <br>
+                        ٪2.5 Commission
+                      </td>
+                      <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7;">
+                         '.number_format($checkTrade->exchange_rate).'
+                      </td>
+                      <td style="padding-top:5px; border-top:1px solid #E7E7E7;" class="mobile">
+                        '.number_format((floor($checkTrade->amount*2.5/100)) * $checkTrade->exchange_rate).'
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7; ">
+                       
+                      </td>
+                      <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7;">
+                         Total amount:
+                      </td>
+                      <td style="padding-top:5px; border-top:1px solid #E7E7E7;" class="mobile">
+                        <b>'.number_format($checkTrade->exchange_rate*$checkTrade->amount+ (floor($checkTrade->amount*2.5/100)) * $checkTrade->exchange_rate).'</b>
+                      </td>
+                    </tr>
+                  </table>
+                  <table cellspacing="0" cellpadding="0" width="100%">
+                    <tr>
+                      <td style="padding-top:35px;">
+                        <table cellpadding="0" cellspacing="0" width="100%">
+                          <tr>
+                        		
+                            <td style="padding:0px 0 15px 30px;" class="mobile-block">
+                              <table cellspacing="0" cellpadding="0" width="100%">
+                        		
+                                <tr>
+                                  <td>Euro Request: </td>
+                                  <td> €'.number_format($checkTrade->amount).'</td>
+                                </tr>
+                                
+                                <tr>
+                                  <td>Due by: </td>
+                                  <td> '.date("Y-m-d").'</td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                          
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+					';
+			$bodyStatusDineroBuyer= '
+						<div>
+                          <!--[if mso]>
+                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
+                            <w:anchorlock/>
+                            <center>
+                          <![endif]-->
+                              <a href="$_SERVER[HTTP_HOST]"
+                        style="background-color:#016910;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
+								درخواست انتقال یورو
+							  </a>
+                          <!--[if mso]>
+                            </center>
+                          </v:rect>
+                          <![endif]-->
+                        </div>
+					';
+				
+			$bodyInfoBuyer= "
+				  <div>
+
+Payment has confirmed for your trade on 24dinero.com.
+ <br>
+Transfer amount:".$checkTrade->amount ."€   <br>
+Bank: ".$buyerBankname->text."<br>
+Beneficiary Name:  ".$buyerFullname->text."<br>
+IBAN: ".$buyerIban->text."<br>
+
+You can follow the transaction on the following link: <br>
+
+<a href=\"".$_SERVER['HTTP_HOST']."/dinero/trade/".$checkTrade->id."\">
+						".$_SERVER['HTTP_HOST']."/dinero/trade/".$checkTrade->id."
+						</a>
+
+                  </div>
+					";
+			$bodyTransactionBuyer= '
+					<table border="0" cellpadding="0" cellspacing="0" width="600" class="w320" style="height:100%;">
+              <tr>
+                <td valign="top" class="mobile-padding" style="padding:20px;">
+                  <table cellspacing="0" cellpadding="0" width="100%">
+                    <tr>
+                      <td style="padding-right:20px">
+                        <b>Euro request</b>
+                      </td>
+                      <td style="padding-right:20px">
+                        <b>Euro Rate</b>
+                      </td>
+                      <td>
+                        <b>Total Toman</b>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7; ">
+                       '.number_format($checkTrade->amount).'
+                      </td>
+                      <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7;">
+                        '.number_format($checkTrade->exchange_rate).'
+                      </td>
+                      <td style="padding-top:5px; border-top:1px solid #E7E7E7;" class="mobile">
+                        '.number_format($checkTrade->exchange_rate*$checkTrade->amount).'
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7; ">
+						'.number_format($transferAmount).' <br>
+                        Transfer Amount
+                      </td>
+                      <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7;">
+                         '.number_format($checkTrade->exchange_rate).'
+                      </td>
+                      <td style="padding-top:5px; border-top:1px solid #E7E7E7;" class="mobile">
+                        '.number_format($transferAmount* $checkTrade->exchange_rate).'
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7; ">
+                       
+                      </td>
+                      <td style="padding-top:5px;padding-right:20px; border-top:1px solid #E7E7E7;">
+                         Total amount:
+                      </td>
+                      <td style="padding-top:5px; border-top:1px solid #E7E7E7;" class="mobile">
+                        <b>'.number_format($checkTrade->exchange_rate*$checkTrade->amount+ $transferAmount* $checkTrade->exchange_rate).'</b>
+                      </td>
+                    </tr>
+                  </table>
+                  <table cellspacing="0" cellpadding="0" width="100%">
+                    <tr>
+                      <td style="padding-top:35px;">
+                        <table cellpadding="0" cellspacing="0" width="100%">
+                          <tr>
+                        		
+                            <td style="padding:0px 0 15px 30px;" class="mobile-block">
+                              <table cellspacing="0" cellpadding="0" width="100%">
+                        		
+                                <tr>
+                                  <td>Euro Request: </td>
+                                  <td> €'.number_format($checkTrade->amount).'</td>
+                                </tr>
+                                
+                                <tr>
+                                  <td>Due by: </td>
+                                  <td> '.date("Y-m-d").'</td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                          
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+					';
+			//sendingblue email
+			require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
+			require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+			$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+			//seller
+			$maildata = array( "to" => array($seller->email=> $sellerFullname->text),
+					"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+					"subject" => "Trade Paid ".$_SERVER['HTTP_HOST'],
+					"html" => emailTemp($bodyStatusDineroSeller,$bodyInfoSeller,$bodyTransactionSeller),
+					"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+			);
+			$mailin->send_email($maildata);
+			//buyer
+			$maildata = array( "to" => array($buyer->email=> $buyerFullname->text),
+					"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+					"subject" => "Trade Paid ".$_SERVER['HTTP_HOST'],
+					"html" => emailTemp($bodyStatusDineroBuyer,$bodyInfoBuyer,$bodyTransactionBuyer),
+					"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+			);
+			$mailin->send_email($maildata);
+			//\\\\\end send email
+			
+			$_SESSION['result']="پرداخت شما با موفقیت انجام شد";
+			$_SESSION['alert']="success";
+			header("location: /dinero/trade/".$_GET['sfid']);
+		}
+	}else{
+		$_SESSION['result']="پرداخت شما تایید نشد.";
+		$_SESSION['alert']="danger";
+		header("location: /dinero/trade/".$_GET['sfid']);
+	}
+
+	
+}
+
+function deal()
+{
+	//advertisment
+	if(!isset($_SESSION["gak_email"])){
+		$_SESSION['result']=" برای درخواست خرید یورو، وارد سایت شوید. ";
+		$_SESSION['alert']="warning";
+		exit(header("Location: /accountkit"));
+	}
+	//check id
+	if(!isset($_GET['id']) or $_GET['id'] == "" )
+		exit(header("Location: /dashboard"));
+	//
+	$Adv = Dineroadv::get(array("id" => $_GET['id'] ,"status" => "active"));
+	$GLOBALS['GCMS']->assign('Adv', $Adv);
+	if(!isset($Adv) ){
+		$_SESSION['result']=" چنین آگهی وجود ندارد. ";
+		$_SESSION['alert']="warning";
+		exit(header("Location: /dashboard"));
+	}
+	$minmax = explode("|", $Adv->minmax);
+	if ( $_GET['amount'] < $minmax[0] )
+		exit(header("Location: ?id=".$_GET['id']."&amount=$minmax[0]"));
+	if (  $minmax[1] < $_GET['amount'] )
+		exit(header("Location: ?id=".$_GET['id']."&amount=$minmax[1]"));
+	//
+	$GLOBALS['GCMS']->assign('Adv', $Adv);
+	$transferAmount = findTransferAmount($_GET['amount']);
+	$GLOBALS['GCMS']->assign('TransferAmount', $transferAmount);
+	if (isset($_GET['update'])){
+		//insert wallet toman
+		$insert_wallet=array(
+				"id_user"        => $_SESSION["gak_id"],
+				"amount"         => "0",
+				"currency"       => "Toman",
+				"iban"           => $_POST['iban'],
+				"cardno"         => $_POST['cardno'],
+				"accountholder"  => $_POST['accountholder'],
+				"bankname"       => $_POST['bankname'],
+				"expdate"        => date("Y-m-d"),
+				"status"         => "active"
+		);
+		Wallet::insert($insert_wallet);
+		Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"],
+				"date" => date("Y-m-d H:i:s"), "title" => "createWallet"));
+		$_SESSION['result']=" کیف پول تومان شما با موفقیت ایجاد شد. ";
+		$_SESSION['alert']="success";
+		header("location: /dinero/deal?id=".$_GET['id']."&amount=".$_GET['amount']);
+	}
+	if (isset($_GET['do'])){
+		require_once(__COREROOT__."/module/dinero/controller/trade.php");
+		if (isset($_GET['payment'])){
+			if($Adv->id_user == $_SESSION["gak_id"] ){
+				$_SESSION['result']=" شما نمی‌توانید از خودتان خرید کنید. ";
+				$_SESSION['alert']="warning";
+				exit(header("Location: /dashboard"));
+			}
+			$lastRate = Dinerorate::get(array(
+					"type"     => "EU",
+					"refrence" => "o-xe.com",
+			),false,array("by"=>'id',"sort"=>'DESC'));
+			$dineroLastRate = $lastRate->ratesell+ $GLOBALS['GCMS_SETTING']['dinero']['ratediff'];
+			switch ($_GET['payment']) {
+				case "wallet" :
+					applyWallet($Adv,$_GET['amount'],$dineroLastRate,$transferAmount);
+					break;
+				case "online" :
+					$totalToman = $_GET['amount']*$dineroLastRate + $dineroLastRate*$transferAmount;
+					$Trade =  applyOnline($Adv,$_GET['amount'],$dineroLastRate,$transferAmount);
+					zarinType($totalToman,"Trade Reference: ".$Trade*951753,$Trade,$_SESSION["gak_email"]);
+					break;
+			}
+		}
+	}
+		
 }
 
 function adv()
@@ -46,19 +880,30 @@ function adv()
 					"status"         => "active"
 			);
 			Wallet::insert($insert_wallet);
+			Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"],
+					"date" => date("Y-m-d H:i:s"), "title" => "createWallet"));
 			$_SESSION['result']=" کیف پول تومان شما با موفقیت ایجاد شد. ";
 			$_SESSION['alert']="success";
 			header("location: /dinero/adv");
 		}
 	}else{
+		//check if wallet
+		$dt = date("Y-m-d");
+		$checAdv=Dineroadv::get(array("id_user" => $_SESSION["gak_id"], "time" => "%$dt%"));
+		if ($checAdv){
+			$_SESSION['result']=" حداکثر ۱ آگهی فروش یورو در هرروز می‌توانید ثبت کنید. ";
+			$_SESSION['alert']="warning";
+			exit(header("Location: /dashboard"));
+		}
+			
 		if (isset($_GET['add'])){
 			//insert wallet toman
 			$insert_wallet=array(
 					"id_user"        => $_SESSION["gak_id"],
 					"currency"       => "Euro",
 					"amount"         => $_POST['amount'],
-					"minmax"         => $_POST['mintransaction']."|"
-									   .$_POST['maxtransaction']."|"
+					"minmax"         => $_POST['amount']."|"
+									   .$_POST['amount']."|"
 									   .$_POST['maxanswer']."|"
 									   .$_POST['maxtransfer'],
 					"locations"      => "es|",
@@ -67,10 +912,57 @@ function adv()
 					"text"           => $_POST['text'],
 					"time"           => date("Y-m-d H:i"),
 			);
-			Dineroadv::insert($insert_wallet);
+			$lastInsertId = Dineroadv::insert($insert_wallet);
+			Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"],
+					"date" => date("Y-m-d H:i:s"), "title" => "createAdv|".$lastInsertId));
+			
+			//start send email
+			$bodyStatusDinero= '
+						<div>
+                          <!--[if mso]>
+                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
+                            <w:anchorlock/>
+                            <center>
+                          <![endif]-->
+                              <a href="$_SERVER[HTTP_HOST]"
+                        style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
+								یک آگهی فروش یورو، ایجاد شد
+							  </a>
+                          <!--[if mso]>
+                            </center>
+                          </v:rect>
+                          <![endif]-->
+                        </div>
+					';
+			
+			$bodyInfo= "
+					  <div>
+					
+						<br>
+						<a href=\"".$_SERVER['HTTP_HOST']."/dinero/advertisement/".$lastInsertId."\">
+						".$_SERVER['HTTP_HOST']."/dinero/advertisement/".$lastInsertId."
+						</a>
+								
+	                  </div>
+					";
+			$bodyTransaction= '
+					
+					';
+			//sendingblue email
+			require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
+			require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+			$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+			$maildata = array( "to" => array($GLOBALS['GCMS_SETTING']['dinero']['dineroAdminEmail']=>"Dinero Admin"),
+					"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+					"subject" => "Adv Created Alarm ".$_SERVER['HTTP_HOST'],
+					"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
+					"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+			);
+			$mailin->send_email($maildata);
+			////end send mail
 			$_SESSION['result']=" آگهی شما با موفقیت ثبت شد. ";
 			$_SESSION['alert']="success";
-			header("location: /dinero/adv");
+			header("location: /dashboard");
 		}
 	}
 		
@@ -143,11 +1035,57 @@ function documents()
 				if (move_uploaded_file($tempFile, $targetFile)) {
 					//
 					Acountkitparam::update(array("id" => $checkAvatar->id,"text" => "pending"));
-					Acountkitparam::update(array("id" => $checkAvatarpath->id,"text" => DIRECTORY_SEPARATOR .$uploaddir.DIRECTORY_SEPARATOR.$imName));
+					Acountkitparam::update(array("id" => $checkAvatarpath->id,"text" => DIRECTORY_SEPARATOR.$uploaddir.DIRECTORY_SEPARATOR.$imName));
 					Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], 
-							"date" => date("Y-m-d H:i:s"), "title" => "uploadavatar"));
+							"date" => date("Y-m-d H:i:s"), "title" => "uploadAvatar"));
 						
-					//
+					//start send email
+					$bodyStatusDinero= '
+						<div>
+                          <!--[if mso]>
+                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
+                            <w:anchorlock/>
+                            <center>
+                          <![endif]-->
+                              <a href="$_SERVER[HTTP_HOST]"
+                        style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
+								برای تایید آواتار اقدام کنید
+							  </a>
+                          <!--[if mso]>
+                            </center>
+                          </v:rect>
+                          <![endif]-->
+                        </div>
+					';
+					
+					$bodyInfo= "
+					  <div>
+					  
+					  <img src=\"".$_SERVER['HTTP_HOST'].DIRECTORY_SEPARATOR.$uploaddir.DIRECTORY_SEPARATOR.$imName."\" >
+						
+						<br>
+						<a href=\"".$_SERVER['HTTP_HOST']."/dinero/userInfo/".$_SESSION["gak_id"]."\">
+						".$_SERVER['HTTP_HOST']."/dinero/userInfo/".$_SESSION["gak_id"]."
+						</a>
+	                   
+	                  </div>
+					";
+					$bodyTransaction= '
+					
+					';
+					//sendingblue email
+					require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
+					require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+					$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+					$maildata = array( "to" => array($GLOBALS['GCMS_SETTING']['dinero']['dineroAdminEmail']=>"Dinero Admin"),
+							"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+							"subject" => "Avatar-Confirmation Alarm ".$_SERVER['HTTP_HOST'],
+							"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
+							"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+					);
+					$mailin->send_email($maildata);
+					
+					//\\\\\end send email
 					$_SESSION['result']=" با موفقیت آپلود شد.  ";
 					$_SESSION['alert']="success";
 					header("location: /dinero/documents");
@@ -189,8 +1127,54 @@ function documents()
 					Acountkitparam::update(array("id" => $checkIdfoto->id,"text" => "pending"));
 					Acountkitparam::update(array("id" => $checkIdfotopath->id,"text" => DIRECTORY_SEPARATOR .$uploaddir.DIRECTORY_SEPARATOR.$imName));
 					Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], 
-							"date" => date("Y-m-d H:i:s"), "title" => "uploadidfoto"));
+							"date" => date("Y-m-d H:i:s"), "title" => "uploadIdfoto"));
+					//start send email
+					$bodyStatusDinero= '
+						<div>
+                          <!--[if mso]>
+                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
+                            <w:anchorlock/>
+                            <center>
+                          <![endif]-->
+                              <a href="$_SERVER[HTTP_HOST]"
+                        style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
+								برای تایید تصویر کارت شناسایی اقدام کنید
+							  </a>
+                          <!--[if mso]>
+                            </center>
+                          </v:rect>
+                          <![endif]-->
+                        </div>
+					';
 						
+					$bodyInfo= "
+					  <div>
+				
+					  <img src=\"".$_SERVER['HTTP_HOST'].DIRECTORY_SEPARATOR .$uploaddir.DIRECTORY_SEPARATOR.$imName."\" >
+					  <br>
+						<a href=\"".$_SERVER['HTTP_HOST']."/dinero/userInfo/".$_SESSION["gak_id"]."\">
+						".$_SERVER['HTTP_HOST']."/dinero/userInfo/".$_SESSION["gak_id"]."
+						</a>
+	                  </div>
+					";
+					$bodyTransaction= '
+			
+					';
+					
+					//sendingblue email
+					require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
+					require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+					$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+					$maildata = array( "to" => array($GLOBALS['GCMS_SETTING']['dinero']['dineroAdminEmail']=>"Dinero Admin"),
+							"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+							"subject" => "ID-Confirmation Alarm ".$_SERVER['HTTP_HOST'],
+							"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
+							"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+					);
+					$mailin->send_email($maildata);
+					
+					
+					//\\\\\end send email
 					//
 					$_SESSION['result']=" با موفقیت آپلود شد.  ";
 					$_SESSION['alert']="success";
@@ -287,7 +1271,8 @@ function bankaccount()
 		Acountkitparam::update(array("id" => $checkbankcountry->id,"text" => $bankcountry));
 		Acountkitparam::update(array("id" => $checkbankaccount->id,"text" => "true"));
 	
-		Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], "date" => date("Y-m-d H:i:s"), "title" => "updatebankaccount"));
+		Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], 
+				"date" => date("Y-m-d H:i:s"), "title" => "updateBankaccount"));
 		
 		$_SESSION['result']=" به‌روزرسانی  حساب بانکی با موفقیت انجام شد ";
 		$_SESSION['alert']="success";
@@ -374,7 +1359,8 @@ function basicinfo()
 		Acountkitparam::update(array("id" => $checkbirthday->id,"text" => $birthday));
 		Acountkitparam::update(array("id" => $checkbasicinfo->id,"text" => "true"));
 		
-		Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], "date" => date("Y-m-d H:i:s"), "title" => "updatebasicinfo"));
+		Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"], 
+				"date" => date("Y-m-d H:i:s"), "title" => "updateBasicinfo"));
 		
 		$_SESSION['result']=" به‌روزرسانی اطلاعات اولیه با موفقیت انجام شد ";
 		$_SESSION['alert']="success";
@@ -914,18 +1900,106 @@ function add()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function zarinType($amount,$txt,$id_shop_factor,$email)
 {
 
 	$MerchantID = $GLOBALS['GCMS_SETTING']['pays']['merchantID'];
 
 	$arr_insert=array(
-			"id_user" => 0,
-			"amount" => $amount,
-			"txt" => $txt,
-			"date" => date("Y-m-d H:i:s"),
-			"bank_info" => "پرداخت با زرین پال",
-			"status" => "pending"
+			"id_user"   => $_SESSION["gak_id"],
+			"amount"    => $amount,
+			"txt"       => $txt,
+			"date"      => date("Y-m-d H:i:s"),
+			"bank_info" => "Payment:Zarin|",
+			"status"    => "pending"
 	);
 
 	Pays::insert($arr_insert);
@@ -935,16 +2009,16 @@ function zarinType($amount,$txt,$id_shop_factor,$email)
 
 	$Amount = $amount;
 	$Description = $txt;
-	$CallbackURL = $site_url."/dinero/back?oid=".$orderId."&type=zarin&id=".rndstring(90)."&sfid=".$id_shop_factor."&id_user=".$email."&amount=".$amount;
+	$CallbackURL = $site_url."/dinero/tradeback?oid=".$orderId."&type=zarin&id=".rndstring(90)."&sfid=".$id_shop_factor."&id_user=".$email."&amount=".$amount;
 	$client = new SoapClient('https://www.zarinpal.com/pg/services/WebGate/wsdl', ['encoding' => 'UTF-8']);
 	$result = $client->PaymentRequest(
 			[
-					'MerchantID' => $MerchantID,
-					'Amount' => $Amount,
-					'Description' => $Description,
-					'Email' => $email,
-					'Mobile' => "",
-					'CallbackURL' => $CallbackURL,
+					'MerchantID'    => $MerchantID,
+					'Amount'        => $Amount,
+					'Description'   => $Description,
+					'Email'         => $email,
+					'Mobile'        => "",
+					'CallbackURL'   => $CallbackURL,
 			]
 			);
 	if ($result->Status == 100) {
@@ -952,7 +2026,7 @@ function zarinType($amount,$txt,$id_shop_factor,$email)
 	} else {
 		$_SESSION['result']=" یک چیزی یه‌جایی اشتباه شده.  ". 'ERR: '.$result->Status;
 		$_SESSION['alert']="danger";
-		header("location: /dinero/add/");
+		header("location: /dashboard");
 	}
 
 }
@@ -976,3 +2050,51 @@ function sendEmailWithPhpmailer($body,$subject,$title,$from,$host,$userName,$pas
 	$mail->AltBody= $text_form;
 	$mail->Send();
 }
+function findTransferAmount($amount) {
+	switch ($amount) {
+	    case $amount < 850:
+	    	$TransferAmount = $amount*4.5/100;
+	        break;
+	    case $amount <= 2300 and $amount >= 850:
+	        $TransferAmount = $amount*4/100;
+	        break;
+	    case $amount > 2300:
+	        $TransferAmount = $amount*3.5/100;
+	        break;
+	}
+	return ceil($TransferAmount);
+}
+
+function sms_send($params, $token, $backup = false ) {
+
+	static $content;
+
+	if($backup == true){
+		$url = 'https://api2.smsapi.com/sms.do';
+	}else{
+		$url = 'https://api.smsapi.com/sms.do';
+	}
+
+	$c = curl_init();
+	curl_setopt( $c, CURLOPT_URL, $url );
+	curl_setopt( $c, CURLOPT_POST, true );
+	curl_setopt( $c, CURLOPT_POSTFIELDS, $params );
+	curl_setopt( $c, CURLOPT_RETURNTRANSFER, true );
+	curl_setopt( $c, CURLOPT_HTTPHEADER, array(
+			"Authorization: Bearer $token"
+	));
+
+	$content = curl_exec( $c );
+	$http_status = curl_getinfo($c, CURLINFO_HTTP_CODE);
+
+	if($http_status != 200 && $backup == false){
+		$backup = true;
+		sms_send($params, $token, $backup);
+	}
+
+	curl_close( $c );
+	return $content;
+}
+
+
+

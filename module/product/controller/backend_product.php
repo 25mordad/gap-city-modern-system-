@@ -56,7 +56,7 @@ function index()
 	//assigning variables
 	$GLOBALS['GCMS']->assign('products', Products::get($arr_get, true, $order, $limit));
 	$GLOBALS['GCMS']->assign('paging', ceil(Products::get_count($arr_get)/$max_results));
-	$GLOBALS['GCMS']->assign('select_parent', select_product_parental("product_group"));
+	//$GLOBALS['GCMS']->assign('select_parent', select_product_parental("product_group"));
 }
 
 function grouping()
@@ -295,3 +295,53 @@ function edit($id)
 	else
 		header("location: /error404?error=product&reason=product_not_exist");
 }
+
+
+function select_product_parental($pg_type = "page", $id_not = "")
+ {
+ $arr_get=array(
+ "id_not" => $id_not,
+ "parent_id" => 0,
+ "pg_type" => $pg_type,
+ "pg_status_not" => "delete"
+ );
+ $mothers=Page::get($arr_get, true);
+
+ $i=0;
+ foreach($mothers as $mother)
+ {
+ $result[$i]['value']=$mother->id;
+ $result[$i]['name']=$mother->pg_title;
+ $i++;
+
+ $arr_get['parent_id']=$mother->id;
+ $childs=Page::get($arr_get, true);
+ if(isset($childs))
+ {
+ foreach($childs as $child)
+ {
+ $result[$i]['value']=$child->id;
+ $result[$i]['name']=">> ".$child->pg_title;
+ $i++;
+
+ $arr_get['parent_id']=$child->id;
+ $childs2=Page::get($arr_get, true);
+
+
+ if(isset($childs2))
+ {
+ foreach($childs2 as $ch)
+ {
+ $result[$i]['value']=$ch->id;
+ $result[$i]['name']=">>> ".$ch->pg_title;
+ $i++;
+ }
+ }
+ }
+ }
+
+ }
+ return $result;
+ }
+
+

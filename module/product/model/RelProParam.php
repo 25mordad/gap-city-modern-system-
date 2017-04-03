@@ -91,7 +91,6 @@ class RelProParam
 									$order['by'],
 									$order['sort']
 						));
-
 		if($list)
 			return $GLOBALS['GCMS_DB']->get_results($query);
 		else
