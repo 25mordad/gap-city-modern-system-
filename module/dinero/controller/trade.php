@@ -77,8 +77,8 @@ function applyWallet($Adv,$amount,$lastrate,$transferAmount){
 			
 		//send emails and sms
 		$checkTrade=Dinerotrade::get(array("id" => $Trade,"id_buyer" => $_SESSION["gak_id"]));
-		$seller   = AccountKit::get(array("iduser" => $checkTrade->id_seller));
-		$buyer   = AccountKit::get(array("iduser" => $checkTrade->id_buyer));
+		$seller   = AccountKit::get(array("id" => $checkTrade->id_seller));
+		$buyer   = AccountKit::get(array("id" => $checkTrade->id_buyer));
 		$sellerFullname = Acountkitparam::get(array("iduser" => $checkTrade->id_seller, "type" => "fullname"));
 		$buyerFullname = Acountkitparam::get(array("iduser" => $checkTrade->id_buyer, "type" => "fullname"));
 		$buyerBankname= Acountkitparam::get(array("iduser" => $checkTrade->id_buyer, "type" => "bankname"));
@@ -97,19 +97,10 @@ function applyWallet($Adv,$amount,$lastrate,$transferAmount){
 		//start send email
 		$bodyStatusDineroSeller= '
 						<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="$_SERVER[HTTP_HOST]"
+                              <a href="#"
                         style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
 								درخواست انتقال یورو، لطفا سریعا اقدام کنید
 							  </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 		
@@ -125,8 +116,8 @@ IBAN: ".$buyerIban->text."<br>
 		
 You can confirm or cancel the transaction on the following link: <br>
 		
-<a href=\"".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."\">
-						".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."
+<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."
 						</a>
 								
                   </div>
@@ -214,19 +205,10 @@ You can confirm or cancel the transaction on the following link: <br>
 					';
 		$bodyStatusDineroBuyer= '
 						<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="$_SERVER[HTTP_HOST]"
+                              <a href="#"
                         style="background-color:#016910;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
 								درخواست انتقال یورو
 							  </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 		
@@ -242,8 +224,8 @@ IBAN: ".$buyerIban->text."<br>
 		
 You can follow the transaction on the following link: <br>
 		
-<a href=\"".$_SERVER['HTTP_HOST']."/dinero/trade/".$checkTrade->id."\">
-						".$_SERVER['HTTP_HOST']."/dinero/trade/".$checkTrade->id."
+<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/trade/".$checkTrade->id."\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/trade/".$checkTrade->id."
 						</a>
 								
                   </div>
@@ -410,44 +392,62 @@ function transferBySeller($file,$txt,$trade){
 					Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"],
 							"date" => date("Y-m-d H:i:s"), "title" => "confirmTransfer"));
 					//find buyer
-					$buyer   = AccountKit::get(array("iduser" => $trade->id_buyer));
+					$buyer   = AccountKit::get(array("id" => $trade->id_buyer));
 					//start send email
 					$bodyStatusDinero= '
 						<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="$_SERVER[HTTP_HOST]"
+                              <a href="#"
                         style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
-								مبلغ انتقال، از طرف فروشنده واریز شد.
+								مبلغ انتقال، از طرف فروشنده واریز شد
 							  </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 						
 					$bodyInfo= "
 					  <div>
-						
+						Payment has paid for your trade on 24dinero.com
+ <br>
+Transfer amount:".$trade->amount ."€   <br>
+You can follow the transaction on the following link, you just have 24 hours to confirm or complaint about this transaction. Please help us 
+to improve the system with your comment before the trade closed. 
+ <br>
+
+<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/trade/".$trade->id."\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/trade/".$trade->id."
+						</a>
 	                  </div>
 					";
 					$bodyTransaction= '
 			
 					';
 						
+					//send to buyer
+					$buyerFullname = Acountkitparam::get(array("iduser" => $buyer->id, "type" => "fullname"));
+					$token = $GLOBALS['GCMS_SETTING']['dinero']['smstoken'];
+					$params = array(
+							'to' => $buyer->number,
+							'from' => 'Info',
+							'message' => "Paymen has paid"
+							."https://24dinero.com/"
+							,
+					);
+					//sms_send($params,$token);
+					
+					//sendingblue email
+					require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
 					require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
-					//send to dinero
-					sendEmailWithPhpmailer(
-							emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
-							"Transfer announcement ".$_SERVER['HTTP_HOST'],"Dinero",
-							$GLOBALS['GCMS_SETTING']['dinero']['emaillogin'],$GLOBALS['GCMS_SETTING']['dinero']['hostmail'],
-							$GLOBALS['GCMS_SETTING']['dinero']['emaillogin'],$GLOBALS['GCMS_SETTING']['dinero']['emailpassword'],
-							$buyer->email);
+					$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+					//
+					$maildata = array( "to" => array($buyer->email=> $buyerFullname->text),
+							"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+							"subject" => "Payment has paid ".$_SERVER['HTTP_HOST'],
+							"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
+							"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+					);
+					$mailin->send_email($maildata);
+					
 					//\\\\\end send email
+					
 					$_SESSION['result']=" با موفقیت آپلود شد.  ";
 					$_SESSION['alert']="success";
 					header("location: /dinero/transact/".$trade->id);
@@ -512,29 +512,28 @@ function cancelBySeller($reason,$trade,$trade,$transferAmount){
 	Accountkitlog::insert(array("iduser" => $trade->id_buyer,
 			"date" => date("Y-m-d H:i:s"), "title" => "systemWalletdeposit"));
 	//find buyer
-	$buyer   = AccountKit::get(array("iduser" => $trade->id_buyer));
+	$buyer   = AccountKit::get(array("id" => $trade->id_buyer));
 	//start send email
 	$bodyStatusDinero= '
 						<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="$_SERVER[HTTP_HOST]"
+                              <a href="#"
                         style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
-								مبلغ انتقال، از طرف فروشنده کنسل شد.
+								مبلغ انتقال، از طرف فروشنده کنسل شد
 							  </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 	
 	$bodyInfo= "
 					  <div>
-	
+						Payment has canceled for your trade on 24dinero.com
+ <br>
+
+You can follow the transaction on the following link. The amount refund to your dinero wallet.
+ <br>
+
+<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/trade/".$trade->id."\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/trade/".$trade->id."
+						</a>
 	                  </div>
 					";
 	$bodyTransaction= '
@@ -542,13 +541,31 @@ function cancelBySeller($reason,$trade,$trade,$transferAmount){
 					';
 	
 	require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
-	//send to dinero
-	sendEmailWithPhpmailer(
-			emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
-			"Transfer announcement ".$_SERVER['HTTP_HOST'],"Dinero",
-			$GLOBALS['GCMS_SETTING']['dinero']['emaillogin'],$GLOBALS['GCMS_SETTING']['dinero']['hostmail'],
-			$GLOBALS['GCMS_SETTING']['dinero']['emaillogin'],$GLOBALS['GCMS_SETTING']['dinero']['emailpassword'],
-			$buyer->email);
+	//send to buyer
+	$buyerFullname = Acountkitparam::get(array("iduser" => $buyer->id, "type" => "fullname"));
+	$token = $GLOBALS['GCMS_SETTING']['dinero']['smstoken'];
+	$params = array(
+			'to' => $buyer->number,
+			'from' => 'Info',
+			'message' => "Paymen has canceled"
+			."https://24dinero.com/"
+			,
+	);
+	//sms_send($params,$token);
+	
+	//sendingblue email
+	require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
+	require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+	$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+	//
+	$maildata = array( "to" => array($buyer->email=> $buyerFullname->text),
+			"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+			"subject" => "Payment has canceled ".$_SERVER['HTTP_HOST'],
+			"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
+			"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+	);
+	$mailin->send_email($maildata);
+	
 	//\\\\\end send email
 	$_SESSION['result']=" لغو انتقال تایید شد. ";
 	$_SESSION['alert']="success";

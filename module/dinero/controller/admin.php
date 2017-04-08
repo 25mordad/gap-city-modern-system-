@@ -57,6 +57,108 @@ function purchase($id)
 			exit(header("Location: /dinero/trades"));
 		}
 	}
+	if (isset($_GET['act'])){
+		//update trade
+		$arr_update=array(
+				"id"                => $checkTrade->id,
+				"trade_status"      => "complete",
+		);
+		Dinerotrade::update($arr_update);
+		//return amount to seller wallet
+		$sellerAmount = $checkTrade->exchange_rate*$checkTrade->amount + (floor($checkTrade->amount*2.5/100)) * $checkTrade->exchange_rate;
+		//find seller wallet
+		$sellerWallet   = Wallet::get(array("id_user" => $checkTrade->id_seller));
+		//update wallet and add transaction
+		//insert
+		$insert_wallettransaction=array(
+				"id_wallet" => $sellerWallet->id,
+				"type"      => "deposit",
+				"amount"    => $sellerAmount,
+				"status"    => "confirm",
+				"text"      => "Automaticly release by system. Trade #".$checkTrade->id*951753 ." complete",
+				"time"      => date("Y-m-d H:i:s")
+		);
+		Wallettransactions::insert($insert_wallettransaction);
+		//update
+		$arr_update=array(
+				"id"          => $sellerWallet->id,
+				"amount"      => $sellerWallet->amount + $sellerAmount
+		);
+		Wallet::update($arr_update);
+		//log
+		Accountkitlog::insert(array("iduser" => $checkTrade->id_seller,
+				"date" => date("Y-m-d H:i:s"), "title" => "systemWalletdeposit"));
+		//
+		//start send email
+		//find seller
+		$seller= AccountKit::get(array("iduser" => $checkTrade->id_seller));
+		$bodyStatusDinero= '
+						<div>
+                          <!--[if mso]>
+                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
+                            <w:anchorlock/>
+                            <center>
+                          <![endif]-->
+                              <a href="$_SERVER[HTTP_HOST]"
+                        style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
+								مبادله توسط سیستم تکمیل و بسته شد
+							  </a>
+                          <!--[if mso]>
+                            </center>
+                          </v:rect>
+                          <![endif]-->
+                        </div>
+					';
+		
+		$bodyInfo= "
+					  <div>
+						Trade has complated on 24dinero.com
+ <br>
+				
+You can follow the trade on the following link. The amount is available on your dinero wallet.
+ <br>
+				
+<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."
+						</a>
+	                  </div>
+					";
+		$bodyTransaction= '
+				
+					';
+		
+		require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+		//send to seller
+		$sellerFullname = Acountkitparam::get(array("iduser" => $checkTrade->id_seller, "type" => "fullname"));
+		$token = $GLOBALS['GCMS_SETTING']['dinero']['smstoken'];
+		$params = array(
+				'to' => $seller->number,
+				'from' => 'Info',
+				'message' => "Trade has complated"
+				."https://24dinero.com/"
+				,
+		);
+		//sms_send($params,$token);
+		
+		//sendingblue email
+		require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
+		require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+		$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+		//
+		$maildata = array( "to" => array($seller->email=> $sellerFullname->text),
+				"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+				"subject" => "Trade has complated ".$_SERVER['HTTP_HOST'],
+				"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
+				"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+		);
+		$mailin->send_email($maildata);
+		
+		//\\\\\end send email
+		//
+		$_SESSION['result']=" با سپاس ";
+		$_SESSION['alert']="success";
+		exit(header("Location: /dinero/purchase/".$id));
+	}
 
 	//
 	$transferAmount = findTransferAmount($checkTrade->amount);

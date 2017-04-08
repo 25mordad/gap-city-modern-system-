@@ -31,3 +31,4 @@ $GLOBALS['GCMS']->assign('all_rand_products', Products::get($arr_get, true, $ord
 if(is_array($_SESSION['gcmsCart'])){
     $GLOBALS['GCMS']->assign('gcmsCart', $_SESSION['gcmsCart']);
 }
+

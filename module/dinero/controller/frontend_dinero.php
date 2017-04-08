@@ -102,19 +102,10 @@ function wallet()
 		//start send email
 		$bodyStatusDinero= '
 						<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="$_SERVER[HTTP_HOST]"
+                              <a href="#"
                         style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
 								واریز به کیف پول متظر تایید شما است
 							  </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 		
@@ -122,8 +113,8 @@ function wallet()
 					  <div>
 				
 						<br>
-						<a href=\"".$_SERVER['HTTP_HOST']."/dinero/settlements\">
-						".$_SERVER['HTTP_HOST']."/dinero/settlements
+						<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/settlements\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/settlements
 						</a>
 								
 	                  </div>
@@ -137,7 +128,7 @@ function wallet()
 		$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
 		$maildata = array( "to" => array($GLOBALS['GCMS_SETTING']['dinero']['dineroAdminEmail']=>"Dinero Admin"),
 				"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
-				"subject" => "Adv Created Alarm ".$_SERVER['HTTP_HOST'],
+				"subject" => "Wallet Payment alarm ".$_SERVER['HTTP_HOST'],
 				"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
 				"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
 		);
@@ -199,19 +190,10 @@ function wallet()
 			//start send email
 			$bodyStatusDinero= '
 						<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="$_SERVER[HTTP_HOST]"
+                              <a href="#"
                         style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
 								یک درخواست تسویه  ، ایجاد شد
 							  </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 			
@@ -219,8 +201,8 @@ function wallet()
 					  <div>
 					
 						<br>
-						<a href=\"".$_SERVER['HTTP_HOST']."/dinero/advertisement/".$lastInsertId."\">
-						".$_SERVER['HTTP_HOST']."/dinero/advertisement/".$lastInsertId."
+						<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/settlements/\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/settlements/
 						</a>
 								
 	                  </div>
@@ -234,7 +216,7 @@ function wallet()
 			$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
 			$maildata = array( "to" => array($GLOBALS['GCMS_SETTING']['dinero']['dineroAdminEmail']=>"Dinero Admin"),
 					"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
-					"subject" => "Adv Created Alarm ".$_SERVER['HTTP_HOST'],
+					"subject" => "Withdraw Request alarm ".$_SERVER['HTTP_HOST'],
 					"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
 					"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
 			);
@@ -390,7 +372,66 @@ function trade($id)
 						"date" => date("Y-m-d H:i:s"), "title" => "systemWalletdeposit"));
 				Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"],
 						"date" => date("Y-m-d H:i:s"), "title" => "completeTrade"));
+				//
+				//start send email
+				//find seller
+				$seller= AccountKit::get(array("id" => $checkTrade->id_seller));
+				$bodyStatusDinero= '
+						<div>
+                          
+                              <a href="#"
+                        style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
+								خریدار دریافت مبلغ یورو را تایید کرد
+							  </a>
+                         
+                        </div>
+					';
 				
+				$bodyInfo= "
+					  <div>
+						Trade has complated on 24dinero.com
+ <br>
+						
+You can follow the trade on the following link. The amount is available on your dinero wallet.
+ <br>
+						
+<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."
+						</a>
+	                  </div>
+					";
+				$bodyTransaction= '
+						
+					';
+				
+				require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+				//send to seller
+				$sellerFullname = Acountkitparam::get(array("iduser" => $checkTrade->id_seller, "type" => "fullname"));
+				$token = $GLOBALS['GCMS_SETTING']['dinero']['smstoken'];
+				$params = array(
+						'to' => $seller->number,
+						'from' => 'Info',
+						'message' => "Trade has complated"
+						."https://24dinero.com/"
+						,
+				);
+				//sms_send($params,$token);
+				
+				//sendingblue email
+				require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
+				require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+				$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+				//
+				$maildata = array( "to" => array($seller->email=> $sellerFullname->text),
+						"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+						"subject" => "Trade has complated ".$_SERVER['HTTP_HOST'],
+						"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
+						"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+				);
+				$mailin->send_email($maildata);
+				
+				//\\\\\end send email
+				//
 				$_SESSION['result']=" با سپاس ";
 				$_SESSION['alert']="success";
 				exit(header("Location: /dinero/trade/".$id));
@@ -406,6 +447,64 @@ function trade($id)
 						//log
 						Accountkitlog::insert(array("iduser" => $_SESSION["gak_id"],
 								"date" => date("Y-m-d H:i:s"), "title" => "complainTrade"));
+						//start send email
+						//find seller
+						$seller= AccountKit::get(array("id" => $checkTrade->id_seller));
+						$bodyStatusDinero= '
+						<div>
+                          
+                              <a href="#"
+                        style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
+								شکایت خریدار از شما، مبلغ یورو به حساب خریدار نرسیده است
+							  </a>
+                          
+                        </div>
+					';
+						
+						$bodyInfo= "
+					  <div>
+					Trade has suspended because we have received a complaint about your trade on 24dinero.com 
+ <br>
+								
+You can follow the trade on the following link. 
+ <br>
+								
+<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."
+						</a>
+	                  </div>
+					";
+						$bodyTransaction= '
+								
+					';
+						
+						require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+						//send to seller
+						$sellerFullname = Acountkitparam::get(array("iduser" => $checkTrade->id_seller, "type" => "fullname"));
+						$token = $GLOBALS['GCMS_SETTING']['dinero']['smstoken'];
+						$params = array(
+								'to' => $seller->number,
+								'from' => 'Info',
+								'message' => "Trade has suspended "
+								."https://24dinero.com/"
+								,
+						);
+						//sms_send($params,$token);
+						
+						//sendingblue email
+						require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
+						require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+						$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+						//
+						$maildata = array( "to" => array($seller->email=> $sellerFullname->text),
+								"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+								"subject" => "Trade has suspended ".$_SERVER['HTTP_HOST'],
+								"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
+								"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+						);
+						$mailin->send_email($maildata);
+						
+						//\\\\\end send email
 						$_SESSION['result']=" درخواست شما ثبت شد. ";
 						$_SESSION['alert']="success";
 						exit(header("Location: /dinero/trade/".$id));
@@ -495,8 +594,8 @@ function tradeback()
 			//send emails and sms
 			//todo shortlink
 			// AIzaSyAoiuf_ls2yJa9AeKYFNiebhKSTDNhywnA goo.gl
-			$seller   = AccountKit::get(array("iduser" => $checkTrade->id_seller));
-			$buyer   = AccountKit::get(array("iduser" => $checkTrade->id_buyer));
+			$seller   = AccountKit::get(array("id" => $checkTrade->id_seller));
+			$buyer   = AccountKit::get(array("id" => $checkTrade->id_buyer));
 			$sellerFullname = Acountkitparam::get(array("iduser" => $checkTrade->id_seller, "type" => "fullname"));
 			$buyerFullname = Acountkitparam::get(array("iduser" => $checkTrade->id_buyer, "type" => "fullname"));
 			$buyerBankname= Acountkitparam::get(array("iduser" => $checkTrade->id_buyer, "type" => "bankname"));
@@ -515,26 +614,17 @@ function tradeback()
 			//start send email
 			$bodyStatusDineroSeller= '
 						<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="$_SERVER[HTTP_HOST]"
+                              <a href="#"
                         style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
 								درخواست انتقال یورو، لطفا سریعا اقدام کنید
 							  </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 				
 			$bodyInfoSeller= "
 				  <div>
 
-Payment has confirmed for your advertisements on 24dinero.com.
+Payment has confirmed for your advertisements on 24dinero.com
  <br>
 Transfer amount:".$checkTrade->amount ."€   <br>
 Bank: ".$buyerBankname->text."<br>
@@ -543,8 +633,8 @@ IBAN: ".$buyerIban->text."<br>
 
 You can confirm or cancel the transaction on the following link: <br>
 
-<a href=\"".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."\">
-						".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."
+<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/transact/".$checkTrade->id."
 						</a>
 
                   </div>
@@ -632,26 +722,17 @@ You can confirm or cancel the transaction on the following link: <br>
 					';
 			$bodyStatusDineroBuyer= '
 						<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="$_SERVER[HTTP_HOST]"
+                              <a href="#"
                         style="background-color:#016910;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
 								درخواست انتقال یورو
 							  </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 				
 			$bodyInfoBuyer= "
 				  <div>
 
-Payment has confirmed for your trade on 24dinero.com.
+Payment has confirmed for your trade on 24dinero.com
  <br>
 Transfer amount:".$checkTrade->amount ."€   <br>
 Bank: ".$buyerBankname->text."<br>
@@ -660,8 +741,8 @@ IBAN: ".$buyerIban->text."<br>
 
 You can follow the transaction on the following link: <br>
 
-<a href=\"".$_SERVER['HTTP_HOST']."/dinero/trade/".$checkTrade->id."\">
-						".$_SERVER['HTTP_HOST']."/dinero/trade/".$checkTrade->id."
+<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/trade/".$checkTrade->id."\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/trade/".$checkTrade->id."
 						</a>
 
                   </div>
@@ -919,19 +1000,10 @@ function adv()
 			//start send email
 			$bodyStatusDinero= '
 						<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="$_SERVER[HTTP_HOST]"
+                              <a href="#"
                         style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
 								یک آگهی فروش یورو، ایجاد شد
 							  </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 			
@@ -939,8 +1011,8 @@ function adv()
 					  <div>
 					
 						<br>
-						<a href=\"".$_SERVER['HTTP_HOST']."/dinero/advertisement/".$lastInsertId."\">
-						".$_SERVER['HTTP_HOST']."/dinero/advertisement/".$lastInsertId."
+						<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/advertisement/".$lastInsertId."\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/advertisement/".$lastInsertId."
 						</a>
 								
 	                  </div>
@@ -1042,19 +1114,10 @@ function documents()
 					//start send email
 					$bodyStatusDinero= '
 						<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="$_SERVER[HTTP_HOST]"
+                              <a href="#"
                         style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
 								برای تایید آواتار اقدام کنید
 							  </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 					
@@ -1064,8 +1127,8 @@ function documents()
 					  <img src=\"".$_SERVER['HTTP_HOST'].DIRECTORY_SEPARATOR.$uploaddir.DIRECTORY_SEPARATOR.$imName."\" >
 						
 						<br>
-						<a href=\"".$_SERVER['HTTP_HOST']."/dinero/userInfo/".$_SESSION["gak_id"]."\">
-						".$_SERVER['HTTP_HOST']."/dinero/userInfo/".$_SESSION["gak_id"]."
+						<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/userInfo/".$_SESSION["gak_id"]."\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/userInfo/".$_SESSION["gak_id"]."
 						</a>
 	                   
 	                  </div>
@@ -1131,19 +1194,10 @@ function documents()
 					//start send email
 					$bodyStatusDinero= '
 						<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="$_SERVER[HTTP_HOST]"
+                              <a href="#"
                         style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
 								برای تایید تصویر کارت شناسایی اقدام کنید
 							  </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 						
@@ -1152,8 +1206,8 @@ function documents()
 				
 					  <img src=\"".$_SERVER['HTTP_HOST'].DIRECTORY_SEPARATOR .$uploaddir.DIRECTORY_SEPARATOR.$imName."\" >
 					  <br>
-						<a href=\"".$_SERVER['HTTP_HOST']."/dinero/userInfo/".$_SESSION["gak_id"]."\">
-						".$_SERVER['HTTP_HOST']."/dinero/userInfo/".$_SESSION["gak_id"]."
+						<a href=\"https://".$_SERVER['HTTP_HOST']."/dinero/userInfo/".$_SESSION["gak_id"]."\">
+						https://".$_SERVER['HTTP_HOST']."/dinero/userInfo/".$_SESSION["gak_id"]."
 						</a>
 	                  </div>
 					";
@@ -1474,39 +1528,21 @@ function offline()
 			
 			$bodyStatusDinero = '
 					<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="http://dinero.ir"
+                              <a href="#"
                         style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
                         پرداخت آفلاین در سیستم ثبت شد. لطفا سریعا پیگیری کنید
                         </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 	
 			$bodyStatus = '
 					<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="http://dinero.ir"
+                              <a href="#"
                         style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
                     اطلاعات شما دریافت و ثبت شد، در صورت تایید اطلاعات توسط مدیر، 
 					انتقال یورو شما در کمتر از ۱ روز کاری انجام می‌شود.
 					لطفا شکیبا باشید
                         </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 	
@@ -1698,39 +1734,21 @@ function back()
 					
 				$bodyStatusDinero = '
 					<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="http://dinero.ir"
+                              <a href="#"
                         style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
                         پرداخت آنلاین در سیستم ثبت شد. پیگیری کنید
                         </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 				
 				$bodyStatus = '
 					<div>
-                          <!--[if mso]>
-                          <v:rect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="#" style="height:33px;v-text-anchor:middle;width:100px;" stroke="f" fillcolor="#D84A38">
-                            <w:anchorlock/>
-                            <center>
-                          <![endif]-->
-                              <a href="http://dinero.ir"
+                              <a href="#"
                         style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
                     اطلاعات شما دریافت و ثبت شد،
 					انتقال یورو شما در کمتر از ۱ روز کاری انجام می‌شود.
 					لطفا شکیبا باشید
                         </a>
-                          <!--[if mso]>
-                            </center>
-                          </v:rect>
-                          <![endif]-->
                         </div>
 					';
 				
@@ -2004,7 +2022,13 @@ function zarinType($amount,$txt,$id_shop_factor,$email)
 
 	Pays::insert($arr_insert);
 	$orderId=mysql_insert_id();
-	$site_url= "http://".$_SERVER['SERVER_NAME'];
+	//protol
+	if ($_SERVER['HTTPS'] == "on")
+		$protocol = "https://";
+	else 
+		$protocol = "http://";
+	//
+	$site_url= $protocol.$_SERVER['SERVER_NAME'];
 	require_once(__COREROOT__."/libs/utility/hashing.php");
 
 	$Amount = $amount;

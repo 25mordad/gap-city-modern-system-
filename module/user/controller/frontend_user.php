@@ -353,20 +353,20 @@ function register()
 				$captcha=$_POST['g-recaptcha-response'];
 			
 			if(!$captcha){
-				$_SESSION['result']=" لطفا «من ربات نیستم» را تایید کنید  ";
+				$_SESSION['result']="Please check I'm not a robot";
 				$_SESSION['alert']="warning";
 				
 			}
 			
 			if($_POST['password']=="")
 			{
-				$_SESSION['result']="کلمه عبور را وارد نکرده‌اید";
+				$_SESSION['result']="Password error";
 				$_SESSION['alert']="warning";
 			}
 				
 			if(!email_validation($_POST['email']) )
 			{
-				$_SESSION['result']=" خطا در ورود اطلاعات ";
+				$_SESSION['result']="Input Error";
 				$_SESSION['alert']="warning";
 			}
 			
@@ -375,7 +375,7 @@ function register()
 				$response=json_decode(file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=".$GLOBALS['GCMS_SETTING']['general']['recaptcha']."&response=".$captcha."&remoteip=".$_SERVER['REMOTE_ADDR']), true);
 				if($response['success'] == false)
 				{
-					$_SESSION['result']=" لطفا I'm not a robot را تایید کنید  ";
+					$_SESSION['result']="Please Confirm I am not a robot";
 					$_SESSION['alert']="warning";
 				}else{
 					//checking duplicate username & email...
@@ -385,12 +385,12 @@ function register()
 					$chk_email=User::get(array("email" => $_POST['email']));
 					if(isset($chk_username))
 					{
-						$_SESSION['result']="نام کاربری قبلا گرفته شده، لطفا نام کاربری دیگری انتخاب کنید";
+						$_SESSION['result']="Username is taken, choose another one";
 						$_SESSION['alert']="warning";
 					}
 					else if(isset($chk_email))
 					{
-						$_SESSION['result']="آدرس ایمیل قبلا استفاده شده، لطفا ایمیل دیگری مشخص کنید";
+						$_SESSION['result']="Email address is taken, choose another one";
 						$_SESSION['alert']="warning";
 					}
 					else
@@ -436,14 +436,16 @@ function register()
 	                        $_SESSION["glogin_user_level"]=$_POST['userlevel'];
 	                        $_SESSION["glogin_user_id"]=$id_user;
 	
-							$_SESSION['result']="ثبت‌نام با موفقیت انجام شد. لطفا صندوق ایمیل خود را بررسی کنید. در برخی از موارد ممکن است ایمیل ارسالی به پوشه اسپم وارد شود با قرار دادن آدرس ایمیل  ".$GLOBALS['GCMS_SETTING']['general']['email']." در بخش آدرس‌های کانتکت و یا دفترچه آدرس ایمیل، می‌توانید از ارسال ایمیل‌ها به اینباکس اطمینان حاصل کنید.";
+							$_SESSION['result']="Please check your email and check the spam box, you can add "
+									.$GLOBALS['GCMS_SETTING']['general']['email'].
+							" to contact book.";
 							$_SESSION['alert']="success";
 							header("location: /user/dashboard");
 							return;
 						}
 						else
 						{
-							$_SESSION['result']="مشکلی به وجود آمد، دوباره تلاش کنید";
+							$_SESSION['result']="Error, please try again";
 							$_SESSION['alert']="error";
 						}
 					}

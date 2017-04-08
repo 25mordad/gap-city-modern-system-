@@ -204,15 +204,15 @@ function emailTemp($bodyStatus,$bodyInfo,$bodyTransaction){
               <tr>
                 <td valign="top" class="mobile-block mobile-no-padding-bottom mobile-center" width="270" style="background:#1f1f1f;padding:10px 10px 10px 20px;">
                   <a href="http://dinero.ir/" style="text-decoration:none;">
-                    <img src="http://dinero.ir/web/dinero/images/logo.png?display=email" width="220"  alt="Dinero"/>
+                    <img src="https://24dinero.com/web/24dinero/images/logo.png?display=email" width="220"  alt="Dinero"/>
                   </a>
                 </td>
                 <td valign="top" class="mobile-block mobile-center" width="270" style="background:#1f1f1f;padding:10px 15px 10px 10px">
                   <table border="0" cellpadding="0" cellspacing="0" class="mobile-center-block" align="right">
                     <tr>
                       <td align="right">
-                        <a href="https://www.facebook.com/LocalDinerocom-1388021071210991/">
-                        <img src="http://dinero.ir/uploads/source/emailtemplate/social_facebook.png"  width="30" height="30" alt="social icon"/>
+                        <a href="https://www.facebook.com/24dinero/">
+                        <img src="https://24dinero.com/uploads/source/emailtemplate/social_facebook.png"  width="30" height="30" alt="social icon"/>
                         </a>
                       </td>
                       
@@ -270,9 +270,9 @@ function emailTemp($bodyStatus,$bodyInfo,$bodyTransaction){
             <table border="0" cellpadding="0" cellspacing="0" width="600" class="w320" style="height:100%;color:#ffffff" bgcolor="#1f1f1f" >
               <tr>
                 <td align="right" valign="middle" class="mobile-padding" style="font-size:12px;padding:20px; background-color:#1f1f1f; color:#ffffff; text-align:left; ">
-                  <a style="color:#ffffff;"  href="http://dinero.ir/page/show/3">Contact Us</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-                  <a style="color:#ffffff;" href="https://www.facebook.com/LocalDinerocom-1388021071210991/">Facebook</a>&nbsp;&nbsp;|&nbsp;&nbsp;
-                  <a style="color:#ffffff;" href="http://dinero.ir/page/show/4/">Support</a>
+                  <a style="color:#ffffff;"  href="https://24dinero.com/page/show/3/title+%20%D8%AA%D9%85%D8%A7%D8%B3+%D8%A8%D8%A7+%D9%85%D8%A7">Contact Us</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+                  <a style="color:#ffffff;" href="https://www.facebook.com/24dinero/">Facebook</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+                  <a style="color:#ffffff;" href="https://24dinero.com/page/show/3/title+%20%D8%AA%D9%85%D8%A7%D8%B3+%D8%A8%D8%A7+%D9%85%D8%A7">Support</a>
                 </td>
               </tr>
             </table>

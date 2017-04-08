@@ -53,8 +53,12 @@ if(isset($_SESSION["gak_email"])) {
 	}
 }
 
+//find trades #
 
-
+$countTrades = "
+		SELECT COUNT(*) as cnt FROM `gcms_dinerotrade` ORDER BY `id` DESC 
+		";
+$GLOBALS['GCMS']->assign('dineroCountTrades', $GLOBALS['GCMS_DB']->get_results($GLOBALS['GCMS_SAFESQL']->query($countTrades)));
 
 
 

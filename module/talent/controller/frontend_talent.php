@@ -22,6 +22,11 @@ function index()
 	//index
 }
 
+function makeData()
+{
+	//index
+}
+
 function basicinfo()
 {
 	if(!isset($_SESSION["gak_email"]))
