@@ -22,9 +22,235 @@ function index()
 	//index
 }
 
-function makeData()
+function prototype()
 {
-	//index
+	//boy
+	if ($_GET['gender'] == "boy"){
+		for ($i=1;$i < 700;$i++){
+			//rand name
+			$names = array(
+					'Christopher',
+					'Ryan',
+					'Ethan',
+					'John',
+					'Jackson',
+					'Aiden',
+					'Michelle',
+					'Lucas',
+			);
+			$surnames = array(
+					'Walker',
+					'Thompson',
+					'Anderson',
+					'Johnson',
+					'Tremblay',
+					'Peltier',
+					'Cunningham',
+					'Simpson',
+					'Mercado',
+					'Sellers'
+			);
+			$random_name = $names[mt_rand(0, sizeof($names) - 1)];
+			$random_surname = $surnames[mt_rand(0, sizeof($surnames) - 1)];
+			//rand birthday
+			$arrayBirthday= array("2007","2006","2005","2005","2004","2004","2003");
+			$birth = array_rand($arrayBirthday);
+			//rand height
+			$arrayHeight= array(
+					"130","131","132","133","134","135","136","137","138","139","140",
+					"139","140","141","142","143","144","145","146","147","148","149",
+					"140","141","142","143","144","145","146","147","148","149","150",
+					"151","152","153","154","155","156","157","158","159","160","161",
+					"159","160","161","162","163","164","165","166","167","168","169"
+			);
+			$height= array_rand($arrayHeight);
+			//rand weight
+			$arrayWeight= array(
+					"29","30","31","32","33","34","35",
+					"33","34","35","36","37","38","39",
+					"37","38","39","40","41","42","43",
+					"43","44","45","46","47","48","49",
+					"48","49","50","51","52","53","54"
+			);
+			$weight= array_rand($arrayWeight);
+			//rand foot
+			$arrayMainfoot = array("right","right","right","right","left","left","both");
+			$mainfoot = array_rand($arrayMainfoot);
+			//rand nationanily
+			$arrayNationanily= array("Spain","Germany","Netherlands");
+			$nationanily= array_rand($arrayNationanily);
+			//rand ethnicity
+			$arrayEthnicity= array("european","european","european","european","european","european","asian","african","southamerican","northamerican");
+			$ethnicity= array_rand($arrayEthnicity);
+			//rand current team
+			$arrayCurrent= array("school team","","","","local team","fc","ac","city","profesional","national team");
+			$current= array_rand($arrayCurrent);
+			//rand position
+			$arrayPosition= array("goalkeeper","defender","midfielder","forward","winger","defensivemidfield","wingback","","","","","","",);
+			$position= array_rand($arrayPosition);
+			//insert
+			$insert=array(
+					"fullname"  => $random_name . ' ' . $random_surname,
+					"gender"    => "boy",
+					"birthday"    => $arrayBirthday[$birth]."-04-18",
+					"height"    => $arrayHeight[$height],
+					"weight"    => $arrayWeight[$weight],
+					"mainfoot"    => $arrayMainfoot[$mainfoot],
+					"nationality"    => $arrayNationanily[$nationanily],
+					"ethnicity"    => $arrayEthnicity[$ethnicity],
+					"currentteam"    => $arrayCurrent[$current],
+					"posisions"    => $arrayPosition[$position]
+			);
+			Talentofake::insert($insert);
+		}
+	
+	}
+	
+	//girl
+	if ($_GET['gender'] == "girl"){
+		for ($i=1;$i < 300;$i++){
+			//rand name
+			$names = array(
+					'Sophia',
+					'Emma',
+					'Maria',
+					'Olivia',
+					'Ava',
+					'Sarah',
+					'Mia',
+					'Isabella',
+			);
+			$surnames = array(
+					'Walker',
+					'Thompson',
+					'Anderson',
+					'Johnson',
+					'Tremblay',
+					'Peltier',
+					'Cunningham',
+					'Simpson',
+					'Mercado',
+					'Sellers'
+			);
+			$random_name = $names[mt_rand(0, sizeof($names) - 1)];
+			$random_surname = $surnames[mt_rand(0, sizeof($surnames) - 1)];
+			//rand birthday
+			$arrayBirthday= array("2007","2006","2005","2005","2004","2004","2003");
+			$birth = array_rand($arrayBirthday);
+			//rand height
+			$arrayHeight= array(
+					"130","131","132","133","134","135","136","137","138","139","140",
+					"139","140","141","142","143","144","145","146","147","148","149",
+					"140","141","142","143","144","145","146","147","148","149","150",
+					"151","152","153","154","155","156","157","158","159","160","161",
+					"159","160","161","162","163","164","165","166","167","168","169"
+			);
+			$height= array_rand($arrayHeight);
+			//rand weight
+			$arrayWeight= array(
+					"29","30","31","32","33","34","35",
+					"33","34","35","36","37","38","39",
+					"37","38","39","40","41","42","43",
+					"43","44","45","46","47","48","49",
+					"48","49","50","51","52","53","54"
+			);
+			$weight= array_rand($arrayWeight);
+			//rand foot
+			$arrayMainfoot = array("right","right","right","right","left","left","both");
+			$mainfoot = array_rand($arrayMainfoot);
+			//rand nationanily
+			$arrayNationanily= array("Spain","Germany","Netherlands");
+			$nationanily= array_rand($arrayNationanily);
+			//rand ethnicity
+			$arrayEthnicity= array("european","european","european","european","european","european","asian","african","southamerican","northamerican");
+			$ethnicity= array_rand($arrayEthnicity);
+			//rand current team
+			$arrayCurrent= array("school team","","","","local team","fc","ac","city","profesional","national team");
+			$current= array_rand($arrayCurrent);
+			//rand position
+			$arrayPosition= array("goalkeeper","defender","midfielder","forward","winger","defensivemidfield","wingback","","","","","","",);
+			$position= array_rand($arrayPosition);
+			//insert
+			$insert=array(
+					"fullname"  => $random_name . ' ' . $random_surname,
+					"gender"    => "girl",
+					"birthday"    => $arrayBirthday[$birth]."-04-18",
+					"height"    => $arrayHeight[$height],
+					"weight"    => $arrayWeight[$weight],
+					"mainfoot"    => $arrayMainfoot[$mainfoot],
+					"nationality"    => $arrayNationanily[$nationanily],
+					"ethnicity"    => $arrayEthnicity[$ethnicity],
+					"currentteam"    => $arrayCurrent[$current],
+					"posisions"    => $arrayPosition[$position]
+			);
+			Talentofake::insert($insert);
+		}
+	}
+	
+	//list
+	if ($_GET['step'] == "1"){
+		
+		$arr_get=array(
+				
+		);
+		$order=array(
+				"rand" => "RAND()",
+		);
+		$limit=array(
+				"start" => 1,
+				"end" => 100
+		);
+		$list = Talentofake::get($arr_get, true, $order, $limit);
+		$GLOBALS['GCMS']->assign('list', $list);
+	}
+	//boy - girl
+	if ($_GET['step'] == "2"){
+		$arr_get=array(
+				"gender" => "boy",
+		);
+		$arr_get_girl=array(
+				"gender" => "girl",
+		);
+		$order=array(
+				"rand" => "RAND()",
+		);
+		$limit=array(
+				"start" => 1,
+				"end" => 10
+		);
+		$GLOBALS['GCMS']->assign('boy', Talentofake::get($arr_get, true, $order, $limit));
+		$GLOBALS['GCMS']->assign('girl', Talentofake::get($arr_get_girl, true, $order, $limit));
+	}
+	
+	//3
+	if ($_GET['step'] == "3"){
+		$arr_get=array(
+				"gender" => "boy",
+		);
+		$order=array(
+				"rand" => "RAND()",
+		);
+		$limit=array(
+				"start" => 1,
+				"end" => 200
+		);
+		$GLOBALS['GCMS']->assign('boy', Talentofake::get($arr_get, true, $order, $limit));
+	}
+	//4
+	if ($_GET['step'] == "4"){
+		$arr_get=array(
+				"gender" => "boy",
+		);
+		$order=array(
+				"rand" => "RAND()",
+		);
+		$limit=array(
+				"start" => 1,
+				"end" => 200
+		);
+		$GLOBALS['GCMS']->assign('boy', Talentofake::get($arr_get, true, $order, $limit));
+	}
+	
 }
 
 function basicinfo()

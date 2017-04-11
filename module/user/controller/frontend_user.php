@@ -26,17 +26,17 @@ function index()
 			if($_POST['capcha']
 					&&(trim($_POST['capcha'])==""||trim($_POST['capcha'])!=$_SESSION['gcms_cpcha']))
 			{
-				$_SESSION['result']="کد تصویری را وارد نکرده‌اید و یا اشتباه وارد کرده‌اید";
+				$_SESSION['result']="Please input the code";
 				$_SESSION['alert']="warning";
 			}
 			else if($_POST['username']=="")
 			{
-				$_SESSION['result']="نام کاربری را وارد نکرده‌اید";
+				$_SESSION['result']="Please input username";
 				$_SESSION['alert']="warning";
 			}
 			else if($_POST['password']=="")
 			{
-				$_SESSION['result']="کلمه عبور را وارد نکرده‌اید";
+				$_SESSION['result']="Please input password";
 				$_SESSION['alert']="warning";
 			}
 			else
@@ -70,7 +70,7 @@ function index()
 								);
 								User::update($arr_update);
 							}
-							$_SESSION['result']="خوش‌آمدید";
+							$_SESSION['result']="Welcome";
 							$_SESSION['alert']="success";
 
 							if(isset($_POST['redirect']))
@@ -104,19 +104,19 @@ function index()
 							}
 							User::update($arr_update);
 
-							$_SESSION['result']="کلمه عبور نادرست است";
+							$_SESSION['result']="Password is incorrect";
 							$_SESSION['alert']="warning";
 						}
 					}
 					else
 					{
-						$_SESSION['result']="حساب شما غیرفعال شده است";
+						$_SESSION['result']="Your account is suspended";
 						$_SESSION['alert']="warning";
 					}
 				}
 				else
 				{
-					$_SESSION['result']="نام کاربری نادرست است";
+					$_SESSION['result']="Username is incorrect";
 					$_SESSION['alert']="warning";
 				}
 			}
@@ -142,12 +142,12 @@ function forgot()
 
 			if(!$captcha)
 			{
-				$_SESSION['result']=" لطفا «من ربات نیستم» را تایید کنید  ";
+				$_SESSION['result']="Please check I am not a robot";
 					$_SESSION['alert']="warning";
 			}
 			else if(!email_validation($_POST['email']))
 			{
-				$_SESSION['result']="آدرس ایمیل معتبر نیست";
+				$_SESSION['result']="Email address is not valid";
 				$_SESSION['alert']="warning";
 			}
 			else
@@ -167,18 +167,18 @@ function forgot()
 						User::update($arr_update);
 						require_once(__COREROOT__."/module/user/controller/forgotemail.php");
 						
-						$_SESSION['result']="لینک تغییر کلمه عبور، به آدرس ایمیل شما ارسال شد ";
+						$_SESSION['result']="Please check your email inbox";
 						$_SESSION['alert']="success";
 					}
 					else
 					{
-						$_SESSION['result']="حساب شما غیرفعال شده است";
+						$_SESSION['result']="Your account is suspended";
 						$_SESSION['alert']="error";
 					}
 				}
 				else
 				{
-					$_SESSION['result']="آدرس ایمیل نادرست است";
+					$_SESSION['result']="Email address is not valid";
 					$_SESSION['alert']="error";
 				}
 			}
@@ -208,12 +208,12 @@ function forgot()
 				);
 				User::update($arr_update);
 				require_once(__COREROOT__."/module/user/controller/resetemail.php");
-				$_SESSION['result']="کلمه عبور جدید، به آدرس ایمیل شما ارسال شد ";
+				$_SESSION['result']="New password sent to your email";
 				$_SESSION['alert']="success";
 			}
 			else
 			{
-				$_SESSION['result']="درحواست شما معتبر نیست،‌ دوباره تلاش کنید";
+				$_SESSION['result']="Your request is not valid, please try again";
 				$_SESSION['alert']="error";
 			}
 			header("location: /user");
@@ -241,7 +241,7 @@ function profile()
 				MetaUser::update($arr_update_meta);
 				$id_meta=key($param);
 			}
-			$_SESSION['result']="تغییرات با موفقیت انجام شد";
+			$_SESSION['result']="Successfully changed";
 			$_SESSION['alert']="success";
 			header("location: /user/profile");
 		}
@@ -262,7 +262,7 @@ function profile()
 				);
 				MetaUser::update($arr_update_meta);
 			}
-			$_SESSION['result']="تغییرات با موفقیت انجام شد";
+			$_SESSION['result']="Successfully changed";
 			$_SESSION['alert']="success";
 			header("location: /user/profile");
 		}
@@ -281,17 +281,17 @@ function chngpass()
 			if($_POST['capcha']
 					&&(trim($_POST['capcha'])==""||trim($_POST['capcha'])!=$_SESSION['gcms_cpcha']))
 			{
-				$_SESSION['result']="کد تصویری را وارد نکرده‌اید و یا اشتباه وارد کرده‌اید";
+				$_SESSION['result']="Please input the code";
 				$_SESSION['alert']="warning";
 			}
 			else if($_POST['password']=="")
 			{
-				$_SESSION['result']="کلمه عبور را وارد نکرده‌اید";
+				$_SESSION['result']="Please input password";
 				$_SESSION['alert']="warning";
 			}
 			else if($_POST['password']!=$_POST['re_password'])
 			{
-				$_SESSION['result']="تکرار کلمه عبور مانند کلمه عبور نیست";
+				$_SESSION['result']="Check the passwords";
 				$_SESSION['alert']="warning";
 			}
 			else
@@ -307,14 +307,14 @@ function chngpass()
 				);
 				if(User::update($arr_update))
 				{
-					$_SESSION['result']="کلمه عبور تغییر کرد";
+					$_SESSION['result']="Password has changed";
 					$_SESSION['alert']="success";
 					header("location: /user/profile");
 					return;
 				}
 				else
 				{
-					$_SESSION['result']="مشکلی به وجود آمد، دوباره تلاش کنید";
+					$_SESSION['result']="Problem occurred, please try again";
 					$_SESSION['alert']="error";
 				}
 			}

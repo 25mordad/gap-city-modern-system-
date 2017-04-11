@@ -1,6 +1,6 @@
 <?php
 /**
- * SAMPLE.php
+ * Talent.php
  *
  * This file is part of GCMS > MODULE MODEL
  * The file is part of the layer for interacting with database.
@@ -11,13 +11,4 @@
  * @version 2.0
  *
  */
-/* 
-class SAMPLE
-{
-
-	public function __construct()
-	{
-
-	}
-}
- */
+require_once(__COREROOT__."/module/talent/model/Talentofake.php");

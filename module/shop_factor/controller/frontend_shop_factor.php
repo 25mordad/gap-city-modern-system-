@@ -189,8 +189,10 @@ function index()
             }
 
             unset($_SESSION['gcmsCart']);
-
-            zarinType($price,"پرداخت آنلاین فاکتور شماره ".$id_shop_factor,$id_shop_factor);
+            if ($GLOBALS['GCMS_SETTING']['shopfactor']['type'] == "zarin")
+            	zarinType($price,"پرداخت آنلاین فاکتور شماره ".$id_shop_factor,$id_shop_factor);
+            if ($GLOBALS['GCMS_SETTING']['shopfactor']['type'] == "stripe")
+            	stripeType($price,"Text".$id_shop_factor,$id_shop_factor);
 
         }
 
@@ -198,6 +200,48 @@ function index()
     }
     else
     	header("location: /user?redirect=".$_SERVER["REQUEST_URI"]);
+}
+function stripeType($amount,$txt,$id_shop_factor)
+{
+	
+	//$MerchantID = $GLOBALS['GCMS_SETTING']['pays']['merchantID'];
+	die("d");
+	/* $arr_insert=array(
+			"id_user" => $_SESSION["glogin_user_id"],
+			"amount" => $amount,
+			"txt" => $_SESSION["glogin_username"]." ".$txt,
+			"date" => date("Y-m-d H:i:s"),
+			"bank_info" => "پرداخت با زرین پال",
+			"status" => "pending"
+	);
+	
+	Pays::insert($arr_insert);
+	$orderId=mysql_insert_id();
+	$site_url= "http://".$_SERVER['SERVER_NAME'];
+	require_once(__COREROOT__."/libs/utility/hashing.php");
+	
+	$Amount = $amount;
+	$Description = $txt;
+	$CallbackURL = $site_url."/shop_factor/?back=true&oid=".$orderId."&type=zarin&id=".rndstring(90)."&sfid=".$id_shop_factor."&id_user=".$_SESSION["glogin_user_id"]."&amount=".$amount;
+	$client = new SoapClient('https://www.zarinpal.com/pg/services/WebGate/wsdl', ['encoding' => 'UTF-8']);
+	$result = $client->PaymentRequest(
+			[
+					'MerchantID' => $MerchantID,
+					'Amount' => $Amount,
+					'Description' => $Description,
+					'Email' => $_SESSION["glogin_username"],
+					'Mobile' => "",
+					'CallbackURL' => $CallbackURL,
+			]
+			);
+	if ($result->Status == 100) {
+		Header('Location: https://www.zarinpal.com/pg/StartPay/'.$result->Authority);
+	} else {
+		$_SESSION['result']=" یک چیزی یه‌جایی اشتباه شده.  ". 'ERR: '.$result->Status;
+		$_SESSION['alert']="danger";
+		header("location: /user/dashboard");
+	} */
+	
 }
 function zarinType($amount,$txt,$id_shop_factor)
 {
