@@ -242,7 +242,43 @@ function settlements()
 				"time"      => date("Y-m-d H:i:s")
 		);
 		Wallettransactions::update($update_wallettransaction);
+		
+		$customer   = AccountKit::get(array("id" => $_GET['u']));
+		$customerFullname = Acountkitparam::get(array("iduser" => $checkPay->id_user, "type" => "fullname"));
 		// TODO send email and sms
+		//start send email
+		$bodyStatusDinero= '
+						<div>
+                              <a href="#"
+                        style="background-color:#2BB51C;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
+								انتقال از کیف‌پول دینرو به بانک شما انجام شد
+							  </a>
+                        </div>
+					';
+		$bodyInfo= "
+		<div style='direction:rtl;text-align:right;'>
+		درخواست تسویه حساب از کیف پول دینرو تایید و انجام شد.
+
+		حداکثر در ساعات کاری پیش‌رو به وقت ایران، مبلغ درخواستی شما، به بانک واریز می‌شود.
+		</div>
+					";
+		
+		$bodyTransaction= '
+				
+		';
+		//sendingblue email
+		require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
+		require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+		$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+		//seller
+		$maildata = array( "to" => array($customer->email => $customerFullname->text),
+				"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+				"subject" => "Bank transfer done ".$_SERVER['HTTP_HOST'],
+				"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
+				"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+		);
+		$mailin->send_email($maildata);
+		//\\\\\end send email
 		$_SESSION['result']=" تغییرات با موفقیت انجام شد ";
 		$_SESSION['alert']="success";
 		exit(header("Location: /dinero/settlements"));
@@ -271,14 +307,85 @@ function settlements()
 				"status"      => "confirm"
 		);
 		Pays::update($arr_update);
+		
+		$checkPay   = Pays::get(array("id" => $_GET['add']));
+		$customer   = AccountKit::get(array("id" => $checkPay->id_user));
+		$customerFullname = Acountkitparam::get(array("iduser" => $checkPay->id_user, "type" => "fullname"));
 		// TODO send email and sms
+		//start send email
+		$bodyStatusDinero= '
+						<div>
+                              <a href="#"
+                        style="background-color:#2BB51C;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
+								درخواست  افزایش موجودی شما تایید شد
+							  </a>
+                        </div>
+					';
+		$bodyInfo= "
+		<div>
+		The amount added to your wallet.
+		</div>
+					";
+		
+		$bodyTransaction= '
+				
+		';
+		//sendingblue email
+		require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
+		require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+		$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+		//seller
+		$maildata = array( "to" => array($customer->email => $customerFullname->text),
+				"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+				"subject" => "Deposit Confirmed ".$_SERVER['HTTP_HOST'],
+				"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
+				"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+		);
+		$mailin->send_email($maildata);
+		//\\\\\end send email
 		$_SESSION['result']=" تغییرات با موفقیت انجام شد ";
 		$_SESSION['alert']="success";
 		exit(header("Location: /dinero/settlements"));
 	}
 	if (isset($_GET['del'])){
+		
+		$checkPay   = Pays::get(array("id" => $_GET['del']));
+		$customer   = AccountKit::get(array("id" => $checkPay->id_user));
+		$customerFullname = Acountkitparam::get(array("iduser" => $checkPay->id_user, "type" => "fullname"));
 		Pays::del($_GET['del']);
-		// TODO send email and sms
+		// TODO  sms
+		//start send email
+		$bodyStatusDinero= '
+						<div>
+                              <a href="#"
+                        style="background-color:#D84A38;padding:10px;color:#ffffff;display:inline-block;font-family:tahoma;font-size:13px;font-weight:bold;line-height:33px;text-align:center;text-decoration:none;-webkit-text-size-adjust:none;">
+								درخواست  افزایش موجودی شما لغو شد
+							  </a>
+                        </div>
+					';
+		$bodyInfo= "
+		<div>
+		The deposit canceled. 
+		</div>
+					";
+		
+		$bodyTransaction= '
+
+		';
+		//sendingblue email
+		require_once(__COREROOT__."/module/dinero/libs/Mailin.php");
+		require_once(__COREROOT__."/module/dinero/controller/emailTemplate.php");
+		$mailin = new Mailin('https://api.sendinblue.com/v2.0',$GLOBALS['GCMS_SETTING']['dinero']['sendinblueAPIKey']);
+		//seller
+		$maildata = array( "to" => array($customer->email => $customerFullname->text),
+				"from" => array($GLOBALS['GCMS_SETTING']['dinero']['sendinblueSenderEmail']),
+				"subject" => "Deposit Canceled ".$_SERVER['HTTP_HOST'],
+				"html" => emailTemp($bodyStatusDinero,$bodyInfo,$bodyTransaction),
+				"headers" => array("Content-Type"=> "text/html; charset=iso-8859-1","X-param1"=> "value1", "X-param2"=> "value2","X-Mailin-custom"=>"my custom value", "X-Mailin-IP"=> "102.102.1.2", "X-Mailin-Tag" => "My tag")
+		);
+		$mailin->send_email($maildata);
+		//\\\\\end send email
+		
 		$_SESSION['result']=" تغییرات با موفقیت انجام شد ";
 		$_SESSION['alert']="success";
 		exit(header("Location: /dinero/settlements"));

@@ -15,18 +15,10 @@
 if(isset($_SESSION["gak_email"])) {
 	//check basicinfo
 	$checkBasicinfo=Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "basicinfo"));
-	if (!isset($checkBasicinfo)){
-		$GLOBALS['GCMS']->assign('DineroAlarmBasicinfo', "true");
-	}else{
-		$GLOBALS['GCMS']->assign('DineroAlarmBasicinfo', "false");
-	}
+	$GLOBALS['GCMS']->assign('DineroAlarmBasicinfo', $checkBasicinfo->text);
 	//check bankaccount
 	$checkBankaccount=Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "bankaccount"));
-	if (!isset($checkBankaccount)){
-		$GLOBALS['GCMS']->assign('DineroAlarmBankaccount', "true");
-	}else{
-		$GLOBALS['GCMS']->assign('DineroAlarmBankaccount', "false");
-	}
+	$GLOBALS['GCMS']->assign('DineroAlarmBankaccount', $checkBankaccount->text);
 	//check avatar
 	$checkAvatar=Acountkitparam::get(array("iduser" => $_SESSION["gak_id"], "type" => "avatar"));
 	if ($checkAvatar->text == "confirm" ){

@@ -26,58 +26,11 @@ function index()
         $GLOBALS['GCMS']->assign('PishFactorId', ShopFactor::get(null,false,array("by"=>"id","sort"=>"DESC"),null));
         if (isset($_GET['back']))
         {
-        	$MerchantID = $GLOBALS['GCMS_SETTING']['pays']['merchantID'];
-        	$Authority = $_GET['Authority'];
-        	$pay=Pays::get(array("id" => $_GET['oid']));
-        	if($pay->id_user!=$_SESSION["glogin_user_id"])
-        	{
-        		$_SESSION['result']="یه چیزی ، یه جایی اشتباه شده";
-        		$_SESSION['alert']="error";
-        		header("location: /pays/list");
-        		exit();
-        	}
-        	$Amount = $pay->amount; 
         	
-        	if ($_GET['Status'] == 'OK') {
-        	
-        		$client = new SoapClient('https://www.zarinpal.com/pg/services/WebGate/wsdl', ['encoding' => 'UTF-8']);
-        	
-        		$result = $client->PaymentVerification(
-        				[
-        						'MerchantID' => $MerchantID,
-        						'Authority' => $Authority,
-        						'Amount' => $Amount,
-        				]
-        				);
-        	
-        		if ($result->Status == 100) {
-        			$arr_update=array(
-        					"id" => $_GET['oid'],
-        					"bank_info" => $pay->bank_info." zarin|refID:".$result->RefID ,
-        					"status" => "confirm"
-        			);
-        			Pays::update($arr_update);
-        			$arr_update=array(
-        					"id" => $_GET['sfid'],
-        					"status_pay" => "confirm"
-        			);
-        			ShopFactor::update($arr_update);
-        			
-        			require_once(__COREROOT__."/module/shop_factor/controller/email.php");
-        			
-        			$_SESSION['result']="پرداخت شما با موفقیت در سیستم ثبت شد";
-        			$_SESSION['alert']="success";
-        			header("location: /shop_factor/thanks/".$_GET['sfid']);
-        		} else {
-        			$_SESSION['result']="خطا در پرداخت " .$result->Status;
-        			$_SESSION['alert']="danger";
-        			header("location: /shop_factor/my");
-        		}
-        	} else {
-        		$_SESSION['result']=" پرداخت لغو شد  " ;
-        		$_SESSION['alert']="danger";
-        		header("location: /shop_factor/my");
-        	}
+        	if ($GLOBALS['GCMS_SETTING']['shopfactor']['type'] == "zarin")
+        		zarinBack();
+        	if ($GLOBALS['GCMS_SETTING']['shopfactor']['type'] == "paypal")
+        		paypalBack();
 
         }
         if (isset($_GET['step']) and isset($_POST['name']) and isset($_SESSION['sumShopFee']))
@@ -88,7 +41,7 @@ function index()
             $array_insert = array(
                 "id_user"    => $_SESSION["glogin_user_id"] ,
                 "address"    => $_POST['province'] . " - " . $_POST['city'] . " - " . $_POST['address'] . " - "
-            		."موبایل:‌" .$_POST['mobile'] . " تلفن: " . $_POST['tell'],
+            		."Cell:‌" .$_POST['mobile'] . " Tell: " . $_POST['tell'],
                 "zipcode"    => $_POST['zipcode'] ,
                 "name"       => $_POST['name'] ,
                 "text"       => $tx,
@@ -191,8 +144,8 @@ function index()
             unset($_SESSION['gcmsCart']);
             if ($GLOBALS['GCMS_SETTING']['shopfactor']['type'] == "zarin")
             	zarinType($price,"پرداخت آنلاین فاکتور شماره ".$id_shop_factor,$id_shop_factor);
-            if ($GLOBALS['GCMS_SETTING']['shopfactor']['type'] == "stripe")
-            	stripeType($price,"Text".$id_shop_factor,$id_shop_factor);
+            if ($GLOBALS['GCMS_SETTING']['shopfactor']['type'] == "paypal")
+            	paypalType($price,"Text".$id_shop_factor,$id_shop_factor);
 
         }
 
@@ -201,46 +154,130 @@ function index()
     else
     	header("location: /user?redirect=".$_SERVER["REQUEST_URI"]);
 }
-function stripeType($amount,$txt,$id_shop_factor)
+
+
+
+function paypalBack()
 {
+	$pay=Pays::get(array("id" => $_GET['oid']));
+	if($pay->id_user!=$_SESSION["glogin_user_id"])
+	{
+		$_SESSION['result']="ERROR";
+		$_SESSION['alert']="error";
+		header("location: /pays/list");
+		exit();
+	}
+	$Amount = $pay->amount;
+	if ($Amount == $_GET['amount']){
+		$arr_update=array(
+				"id" => $_GET['oid'],
+				"bank_info" => $pay->bank_info." paypal|refID:".date("Y-m-d H:i:s"),
+				"status" => "confirm"
+		);
+		Pays::update($arr_update);
+		$arr_update=array(
+				"id" => $_GET['sfid'],
+				"status_pay" => "confirm"
+		);
+		ShopFactor::update($arr_update);
+		
+		//require_once(__COREROOT__."/module/shop_factor/controller/email.php");
+		
+		$_SESSION['result']="Payment successfully registred";
+		$_SESSION['alert']="success";
+		header("location: /shop_factor/thanks/".$_GET['sfid']);
+	}else{
+		$_SESSION['result']="ERROR";
+		$_SESSION['alert']="error";
+		header("location: /pays/list");
+		exit();
+	}
 	
-	//$MerchantID = $GLOBALS['GCMS_SETTING']['pays']['merchantID'];
-	die("d");
-	/* $arr_insert=array(
+	
+}
+
+
+function zarinBack()
+{
+	$MerchantID = $GLOBALS['GCMS_SETTING']['pays']['merchantID'];
+	$Authority = $_GET['Authority'];
+	$pay=Pays::get(array("id" => $_GET['oid']));
+	if($pay->id_user!=$_SESSION["glogin_user_id"])
+	{
+		$_SESSION['result']="یه چیزی ، یه جایی اشتباه شده";
+		$_SESSION['alert']="error";
+		header("location: /pays/list");
+		exit();
+	}
+	$Amount = $pay->amount;
+	
+	if ($_GET['Status'] == 'OK') {
+		
+		$client = new SoapClient('https://www.zarinpal.com/pg/services/WebGate/wsdl', ['encoding' => 'UTF-8']);
+		
+		$result = $client->PaymentVerification(
+				[
+						'MerchantID' => $MerchantID,
+						'Authority' => $Authority,
+						'Amount' => $Amount,
+				]
+				);
+		
+		if ($result->Status == 100) {
+			$arr_update=array(
+					"id" => $_GET['oid'],
+					"bank_info" => $pay->bank_info." zarin|refID:".$result->RefID ,
+					"status" => "confirm"
+			);
+			Pays::update($arr_update);
+			$arr_update=array(
+					"id" => $_GET['sfid'],
+					"status_pay" => "confirm"
+			);
+			ShopFactor::update($arr_update);
+			
+			require_once(__COREROOT__."/module/shop_factor/controller/email.php");
+			
+			$_SESSION['result']="پرداخت شما با موفقیت در سیستم ثبت شد";
+			$_SESSION['alert']="success";
+			header("location: /shop_factor/thanks/".$_GET['sfid']);
+		} else {
+			$_SESSION['result']="خطا در پرداخت " .$result->Status;
+			$_SESSION['alert']="danger";
+			header("location: /shop_factor/my");
+		}
+	} else {
+		$_SESSION['result']=" پرداخت لغو شد  " ;
+		$_SESSION['alert']="danger";
+		header("location: /shop_factor/my");
+	}
+}
+
+
+function paypalType($amount,$txt,$id_shop_factor)
+{
+	$arr_insert=array(
 			"id_user" => $_SESSION["glogin_user_id"],
 			"amount" => $amount,
 			"txt" => $_SESSION["glogin_username"]." ".$txt,
 			"date" => date("Y-m-d H:i:s"),
-			"bank_info" => "پرداخت با زرین پال",
+			"bank_info" => "Paypal Payment",
 			"status" => "pending"
 	);
-	
 	Pays::insert($arr_insert);
 	$orderId=mysql_insert_id();
-	$site_url= "http://".$_SERVER['SERVER_NAME'];
-	require_once(__COREROOT__."/libs/utility/hashing.php");
 	
-	$Amount = $amount;
-	$Description = $txt;
-	$CallbackURL = $site_url."/shop_factor/?back=true&oid=".$orderId."&type=zarin&id=".rndstring(90)."&sfid=".$id_shop_factor."&id_user=".$_SESSION["glogin_user_id"]."&amount=".$amount;
-	$client = new SoapClient('https://www.zarinpal.com/pg/services/WebGate/wsdl', ['encoding' => 'UTF-8']);
-	$result = $client->PaymentRequest(
-			[
-					'MerchantID' => $MerchantID,
-					'Amount' => $Amount,
-					'Description' => $Description,
-					'Email' => $_SESSION["glogin_username"],
-					'Mobile' => "",
-					'CallbackURL' => $CallbackURL,
-			]
-			);
-	if ($result->Status == 100) {
-		Header('Location: https://www.zarinpal.com/pg/StartPay/'.$result->Authority);
-	} else {
-		$_SESSION['result']=" یک چیزی یه‌جایی اشتباه شده.  ". 'ERR: '.$result->Status;
-		$_SESSION['alert']="danger";
-		header("location: /user/dashboard");
-	} */
+	$site_url= "http://".$_SERVER['SERVER_NAME'];
+	$paypal_email = $GLOBALS['GCMS_SETTING']['pays']['paypalemail'];
+	require_once(__COREROOT__."/libs/utility/hashing.php");
+	$CallbackURL = $site_url."/shop_factor/?back=true&oid=".$orderId."&type=paypal&id=".rndstring(90)."&sfid=".$id_shop_factor."&id_user=".$_SESSION["glogin_user_id"]."&amount=".$amount;
+	
+	$querystring  = "?business=".urlencode($paypal_email)."&amount=".urlencode($amount).
+	"&cmd=_xclick&lc=ES&currency_code=EUR&payer_email".$_SESSION["glogin_username"].
+	"&return=".urlencode(stripslashes($CallbackURL));
+	
+	header('location:https://www.sandbox.paypal.com/cgi-bin/webscr'.$querystring);
+	exit();
 	
 }
 function zarinType($amount,$txt,$id_shop_factor)
@@ -345,3 +382,4 @@ function aprint ($id)
     }else
         header("location: /user?redirect=".$_SERVER["REQUEST_URI"]);
 }
+

@@ -20,6 +20,7 @@ if(file_exists($utilityfile))
 
 function index()
 {
+	
 	//find advs
 	$Advertisements = Dineroadv::get(array("status" => "active"),true);
 	$GLOBALS['GCMS']->assign('Advertisements', $Advertisements);
@@ -27,6 +28,11 @@ function index()
 
 function advs($id)
 {
+	if(!isset($_SESSION["gak_email"])){
+		$_SESSION['result']="لطفا وارد سایت شوید.";
+		$_SESSION['alert']="warning";
+		exit(header("Location: /accountkit"));
+	}
 	//find advs
 	$Advertisements = Dineroadv::get(array("id_user" => $_SESSION["gak_id"]),true);
 	if (isset($id)){
@@ -924,6 +930,11 @@ function deal()
 					"refrence" => "o-xe.com",
 			),false,array("by"=>'id',"sort"=>'DESC'));
 			$dineroLastRate = $lastRate->ratesell+ $GLOBALS['GCMS_SETTING']['dinero']['ratediff'];
+			if (isset($_GET['discount'])){
+				if ($_GET['discount'] == "abril-25-0"){
+					$dineroLastRate = $dineroLastRate -25;
+				}
+			}
 			switch ($_GET['payment']) {
 				case "wallet" :
 					applyWallet($Adv,$_GET['amount'],$dineroLastRate,$transferAmount);
@@ -956,7 +967,7 @@ function adv()
 					"iban"           => $_POST['iban'],
 					"cardno"         => $_POST['cardno'],
 					"accountholder"  => $_POST['accountholder'],
-					"bankname"       => $_POST['iban'],
+					"bankname"       => $_POST['bankname'],
 					"expdate"        => date("Y-m-d"),
 					"status"         => "active"
 			);

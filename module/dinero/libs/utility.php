@@ -21,8 +21,13 @@ function smarty_function_get_dineroadv($params, &$smarty)
 }
 function smarty_function_get_wallet($params, &$smarty)
 {
-	//$params['id']
+	//$params['id'] @important get wallet by id_user
 	$GLOBALS['GCMS']->assign('Wallet', Wallet::get(array("id_user" => $params['id'], "currency" => "Toman")));
+}
+function smarty_function_get_walletbyid($params, &$smarty)
+{
+	//$params['id'] @important get wallet by id wallet
+	$GLOBALS['GCMS']->assign('Walletbyid', Wallet::get(array("id" => $params['id'], "currency" => "Toman")));
 }
 /**
  * 
