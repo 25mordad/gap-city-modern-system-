@@ -21,6 +21,14 @@ function index()
 {
 	//index
 }
+function show($id)
+{
+	///get ticket
+	$Ticket = Ticket::get(array("id" => $id));
+	if (!$Ticket)
+		exit(header("Location: /"));
+		$GLOBALS['GCMS']->assign('Ticket', $Ticket);
+}
 
 
 

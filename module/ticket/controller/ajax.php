@@ -104,3 +104,118 @@ function uploadFile()
 	}
 	
 }
+
+function showTicketImages()
+{
+	$images = Image::get(array("im_type" => "ticket" ), true, $order=array("by" => "id", "sort" => "DESC" ), $_GET['id']);
+	echo '
+
+	<div class="row">
+	  
+
+	';
+	
+	foreach ($images as $image){
+		echo '
+<div class="col-md-2">
+	    <div class="thumbnail">
+	      <a href="$image->im_path$image->im_name">
+	        <img src="'.$image->im_path.'thumb/'.$image->im_name.'"  style="width:100%">
+	        <div class="caption">
+	          <a href="#showTicketImages" onclick="removeTicketImages('.$image->id.');" style="color:red">Remove</a>
+	        </div>
+	      </a>
+	    </div>
+</div>
+';
+	}
+	
+	echo '
+
+	  
+	  </div>
+	';
+	
+	
+	
+}
+
+function removeTicketImages()
+{
+	Image::del($_GET['id']);
+}
+
+function addTicketTime()
+{
+	$insertTickettime=array(
+			"id_ticket"        => $_GET['id'],
+			"hour"             => $_GET['timehour'].":".$_GET['timemin'],
+			"available"        => $_GET['timeavailable']
+	);
+	Tickettime::insert($insertTickettime);
+}
+
+function showTicketTime()
+{
+	$tickettimes = Tickettime::get(array("id_ticket" => $_GET['id']), true,$order=array("by" => "hour", "sort" => " ASC" ));
+	foreach ($tickettimes as $tickettime){
+		echo '
+			 <button type="button" onclick="removeTicketTime('.$tickettime->id.');" class="btn btn-dark" style="margin:5px">
+			'.$tickettime->hour.' <span class="badge badge-light">'.$tickettime->available.'</span>
+			
+			</button> 
+';
+	}
+	
+}
+
+function removeTicketTime()
+{
+	Tickettime::del($_GET['id']);
+}
+
+function addBlockdate()
+{
+	$insertBlockeddate=array(
+			"id_ticket"        => $_GET['id'],
+			"type"             => $_GET['type'],
+			"blocktype"        => $_GET['blocktype'],
+			"date"             => $_GET['bdate']
+	);
+	Blockeddate::insert($insertBlockeddate);
+}
+function showBlockeddate()
+{
+	$blockeddates = Blockeddate::get(array("id_ticket" => $_GET['id'],"type" => $_GET['type']), true,$order=array("by" => "date", "sort" => " ASC" ));
+	foreach ($blockeddates as $blockeddates){
+		echo '
+			 <button type="button" onclick="removeBlockeddate('.$blockeddates->id.');" class="btn btn-dark" style="margin:5px">
+			'.$blockeddates->date.' <span class="badge badge-light">'.$blockeddates->blocktype.'</span>
+					
+			</button>
+';
+	}
+}
+
+function removeBlockeddate()
+{
+	Blockeddate::del($_GET['id']);
+}
+
+function changeprice()
+{
+	$updatTicketprice=array(
+			"id"          => $_GET['id'] ,
+			$_GET['type'] => $_GET['value']
+	);
+	Ticketprice::update($updatTicketprice); 
+}
+
+function changefeature()
+{
+	$updatTicketfeature=array(
+			"id"       => $_GET['id'] ,
+			"value"    => $_GET['value']
+	);
+	Ticketfeature::update($updatTicketfeature);
+}

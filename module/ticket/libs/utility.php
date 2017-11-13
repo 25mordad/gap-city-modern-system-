@@ -18,6 +18,11 @@ function smarty_function_get_ticketprice($params, &$smarty)
 	//$params['id_ticket'] $params['name']
 	$GLOBALS['GCMS']->assign('ticketPrice', Ticketprice::get(array("id_ticket" => $params['id_ticket'],"name" => $params['name'])));
 }
+function smarty_function_get_ticketfeature($params, &$smarty)
+{
+	//$params['id_ticket'] $params['name']
+	$GLOBALS['GCMS']->assign('ticketFeature', Ticketfeature::get(array("id_ticket" => $params['id_ticket'],"name" => $params['name'])));
+}
 /**
  * 
  * UTILITY

@@ -32,13 +32,15 @@ function Admin()
 				"state"             => $_POST['state'],
 				"city"              => $_POST['city'],
 				"title"             => $_POST['title'],
+				"url"               => $_POST['title'],
 				"googlemap"         => "",
 				"meetingpoint"      => "",
 				"description"       => "",
 				"status"            => "pending",
 				"bookstatus"        => "pending",
 				"ticketorder"       => 0,
-				//"tickettype"        => "",
+				"facilities"        => "|Skip the Line|Mobile Voucher Accepted|Printed Voucher Accepted|Instant Confirmation|Easy Cancellation|Licensed Guides|Guarantee Entrance|Last Minute Ticket",
+				"duration"          => "",
 				"author_id"         => $_SESSION["gak_id"],
 				"created_date"      => date("Y-m-d H:i:s"),
 				"modified_date"     => date("Y-m-d H:i:s")
@@ -69,29 +71,57 @@ function AdminEditTicket($id)
 			if(!strpos($_SESSION["gak_level"], ":ticket"))
 				exit(header("Location: /accountkit"));
 			
+	///get ticket
+	$Ticket = Ticket::get(array("id" => $id));
+	if (!$Ticket)
+		exit(header("Location: /dashboard"));
+	$GLOBALS['GCMS']->assign('Ticket', $Ticket);
+				
 	///get type
 	$ticketType = Type::get(array("name" => "tickettype"),true);
 	$GLOBALS['GCMS']->assign('ticketType', $ticketType);
+	///get feature
+	$tickettypeFeature = Type::get(array("name" => "ticketfeature"),true);
+	$GLOBALS['GCMS']->assign('tickettypeFeature', $tickettypeFeature);
+	
+	///if prices set?
+	$ticketPrice = Ticketprice::get(array("id_ticket" => $id),true);
+	$GLOBALS['GCMS']->assign('ticketPrice', $ticketPrice);
+	if(!$ticketPrice){
+		foreach ($ticketType as $tt){
+			$insertTicketprice=array(
+					"id_ticket"      => $id,
+					"name"           => $tt->value,
+					"price"          => 0,
+					"bookingfee"     => 0,
+					"offer"          => 0
+			);
+			Ticketprice::insert($insertTicketprice);
+		}
+		$ticketPrice = Ticketprice::get(array("id_ticket" => $id),true);
+		$GLOBALS['GCMS']->assign('ticketPrice', $ticketPrice);
+	}
+	///if features set?
+	$ticketFeature= Ticketfeature::get(array("id_ticket" => $id),true);
+	$GLOBALS['GCMS']->assign('ticketFeature', $ticketFeature);
+	if(!$ticketFeature){
+		foreach ($tickettypeFeature as $tf){
+			$insertTicketfeature=array(
+					"id_ticket" => $id,
+					"name"      => $tf->value,
+					"value"     => ""
+			);
+			Ticketfeature::insert($insertTicketfeature);
+		}
+		$ticketFeature= Ticketfeature::get(array("id_ticket" => $id),true);
+		$GLOBALS['GCMS']->assign('ticketFeature', $ticketFeature);
+	}
 	///EDIT
 	if (isset($_GET['edit'])){
-		
-		/* //tickettype
-		$tickettype= "";
-		foreach($_POST['tickettype'] as $p) {
-			$tickettype= $tickettype."|".$p;
-		} */
-		
-		foreach ($ticketType as $tt){
-			if ($_POST['price'.$tt->value] != "" && $_POST['bookingfee'.$tt->value] != ""){
-				$insertTicketprice=array(
-						"id_ticket"      => $id,
-						"name"           => $tt->value,
-						"price"          => $_POST['price'.$tt->value],
-						"bookingfee"     => $_POST['bookingfee'.$tt->value]
-				);
-				Ticketprice::insert($insertTicketprice); 
-			}
-			
+		//posision
+		$facilities= "";
+		foreach($_POST['facilities'] as $p) {
+			$facilities= $facilities."|".$p;
 		}
 		
 		$editTicket=array(
@@ -100,12 +130,14 @@ function AdminEditTicket($id)
 				"state"             => $_POST['state'],
 				"city"              => $_POST['city'],
 				"title"             => $_POST['title'],
+				"url"               => $_POST['url'],
 				"googlemap"         => $_POST['latitude'].":".$_POST['longitude'],
 				"meetingpoint"      => $_POST['meetingpoint'],
 				"description"       => $_POST['description'],
 				"status"            => $_POST['status'],
 				"bookstatus"        => $_POST['bookstatus'],
-				//"tickettype"        => $tickettype,
+				"facilities"        => $facilities,
+				"duration"          => $_POST['duration'],
 				"modified_date"     => date("Y-m-d H:i:s")
 		);
 		Ticket::update($editTicket);
@@ -117,9 +149,7 @@ function AdminEditTicket($id)
 		$_SESSION['alert']="success";
 		exit(header("Location: /ticket/AdminEditTicket/".$id));
 	}
-	///get ticket		
-	$Ticket = Ticket::get(array("id" => $id));
-	$GLOBALS['GCMS']->assign('Ticket', $Ticket);
+	
 	
 }
 

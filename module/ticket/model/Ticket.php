@@ -13,7 +13,9 @@
  */
 require_once(__COREROOT__."/module/ticket/model/Type.php");
 require_once(__COREROOT__."/module/ticket/model/Ticketprice.php");
-
+require_once(__COREROOT__."/module/ticket/model/Tickettime.php");
+require_once(__COREROOT__."/module/ticket/model/Ticketfeature.php");
+require_once(__COREROOT__."/module/ticket/model/Blockeddate.php");
 class Ticket
 {
 	
@@ -34,11 +36,13 @@ class Ticket
                          `googlemap`  ,
                          `meetingpoint`  ,
                          `title`  ,
+                         `url`  ,
                          `description`  ,
                          `status`  ,
                          `bookstatus`  ,
                          `ticketorder`  ,
-                         `tickettype`  ,
+                         `facilities`  ,
+                         `duration`  ,
                          `author_id`  ,
                          `created_date`  ,
                          `modified_date`
@@ -55,10 +59,12 @@ class Ticket
                          %n  ,
                          %n  ,
                          %n  ,
+                         %n  ,
+                         %n  ,
                          %i  ,
                          %n  ,
                          %n
-						)", array($arr['country'] , $arr['state'] , $arr['city'] , $arr['googlemap'] , $arr['meetingpoint'] , $arr['title'] , $arr['description'] , $arr['status'] , $arr['bookstatus'] , $arr['ticketorder'] , $arr['tickettype'] , $arr['author_id'] , $arr['created_date'] , $arr['modified_date']));
+						)", array($arr['country'] , $arr['state'] , $arr['city'] , $arr['googlemap'] , $arr['meetingpoint'] , $arr['title'] , $arr['url'] , $arr['description'] , $arr['status'] , $arr['bookstatus'] , $arr['ticketorder'] , $arr['facilities'] , $arr['duration'] , $arr['author_id'] , $arr['created_date'] , $arr['modified_date']));
 		$GLOBALS['GCMS_DB']->query($query);
 		return  mysql_insert_id();
 	}
@@ -75,17 +81,19 @@ class Ticket
                          [ , `googlemap` = %N ]
                          [ , `meetingpoint` = %N ]
                          [ , `title` = %N ]
+                         [ , `url` = %N ]
                          [ , `description` = %N ]
                          [ , `status` = %N ]
                          [ , `bookstatus` = %N ]
                          [ , `ticketorder` = %N ]
-                         [ , `tickettype` = %N ]
+                         [ , `facilities` = %N ]
+                         [ , `duration` = %N ]
                          [ , `author_id` = %I ]
                          [ , `created_date` = %N ]
                          [ , `modified_date` = %N ]
 				
 						WHERE `id` =  %i",
-				array($arr['id'] , $arr['country'] , $arr['state'] , $arr['city'] , $arr['googlemap'] , $arr['meetingpoint'] , $arr['title'] , $arr['description'] , $arr['status'] , $arr['bookstatus'] , $arr['ticketorder'] , $arr['tickettype'] , $arr['author_id'] , $arr['created_date'] , $arr['modified_date'], $arr['id']));
+				array($arr['id'] , $arr['country'] , $arr['state'] , $arr['city'] , $arr['googlemap'] , $arr['meetingpoint'] , $arr['title'] , $arr['url'] , $arr['description'] , $arr['status'] , $arr['bookstatus'] , $arr['ticketorder'] , $arr['facilities'] , $arr['duration'] , $arr['author_id'] , $arr['created_date'] , $arr['modified_date'], $arr['id']));
 		return $GLOBALS['GCMS_DB']->query($query);
 	}
 	
@@ -101,11 +109,13 @@ class Ticket
                          [ AND `googlemap` = %N ]
                          [ AND `meetingpoint` = %N ]
                          [ AND `title` = %N ]
+                         [ AND `url` = %N ]
                          [ AND `description` = %N ]
                          [ AND `status` = %N ]
                          [ AND `bookstatus` = %N ]
                          [ AND `ticketorder` = %N ]
-                         [ AND `tickettype` = %N ]
+                         [ AND `facilities` = %N ]
+                         [ AND `duration` = %N ]
                          [ AND `author_id` = %I ]
                          [ AND `created_date` = %N ]
                          [ AND `modified_date` = %N ]
@@ -113,7 +123,7 @@ class Ticket
 						[ ORDER BY `%S` ] [ %S ]
                         [ LIMIT %I ][ , %I ]
 						",
-				array($arr['id'] , $arr['country'] , $arr['state'] , $arr['city'] , $arr['googlemap'] , $arr['meetingpoint'] , $arr['title'] , $arr['description'] , $arr['status'] , $arr['bookstatus'] , $arr['ticketorder'] , $arr['tickettype'] , $arr['author_id'] , $arr['created_date'] , $arr['modified_date'], $order['by'], $order['sort'] ,$limit['start'],$limit['end']));
+				array($arr['id'] , $arr['country'] , $arr['state'] , $arr['city'] , $arr['googlemap'] , $arr['meetingpoint'] , $arr['title'] , $arr['url'] , $arr['description'] , $arr['status'] , $arr['bookstatus'] , $arr['ticketorder'] , $arr['facilities'] , $arr['duration'] , $arr['author_id'] , $arr['created_date'] , $arr['modified_date'], $order['by'], $order['sort'] ,$limit['start'],$limit['end']));
 		if($list)
 			return $GLOBALS['GCMS_DB']->get_results($query);
 			else
@@ -132,17 +142,19 @@ class Ticket
                          [ AND `googlemap` = %N ]
                          [ AND `meetingpoint` = %N ]
                          [ AND `title` = %N ]
+                         [ AND `url` = %N ]
                          [ AND `description` = %N ]
                          [ AND `status` = %N ]
                          [ AND `bookstatus` = %N ]
                          [ AND `ticketorder` = %N ]
-                         [ AND `tickettype` = %N ]
+                         [ AND `facilities` = %N ]
+                         [ AND `duration` = %N ]
                          [ AND `author_id` = %I ]
                          [ AND `created_date` = %N ]
                          [ AND `modified_date` = %N ]
 				
 						",
-				array($arr['id'] , $arr['country'] , $arr['state'] , $arr['city'] , $arr['googlemap'] , $arr['meetingpoint'] , $arr['title'] , $arr['description'] , $arr['status'] , $arr['bookstatus'] , $arr['ticketorder'] , $arr['tickettype'] , $arr['author_id'] , $arr['created_date'] , $arr['modified_date']));
+				array($arr['id'] , $arr['country'] , $arr['state'] , $arr['city'] , $arr['googlemap'] , $arr['meetingpoint'] , $arr['title'] , $arr['url'] , $arr['description'] , $arr['status'] , $arr['bookstatus'] , $arr['ticketorder'] , $arr['facilities'] , $arr['duration'] , $arr['author_id'] , $arr['created_date'] , $arr['modified_date']));
 		$result=$GLOBALS['GCMS_DB']->get_results($query);
 		return $result[0]->Num;
 	}

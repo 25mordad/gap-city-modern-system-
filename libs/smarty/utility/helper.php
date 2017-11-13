@@ -93,6 +93,28 @@ function smarty_function_changetoplus($params, &$smarty)
 	);
 	echo str_replace($letters, '+', $params['title']);
 }
+function smarty_function_changetodash($params, &$smarty)
+{
+	$letters=array(
+				'~',
+				'%',
+				'=',
+				'(',
+				')',
+				'*',
+				'&',
+				':',
+				';',
+				'!',
+				'@',
+				',',
+				'.',
+				'|',
+                '/',
+				' '
+	);
+	echo str_replace($letters, '-', $params['title']);
+}
 
 function smarty_function_pagingurl($params, &$smarty)
 {

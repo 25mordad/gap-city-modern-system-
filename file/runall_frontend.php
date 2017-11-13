@@ -36,7 +36,7 @@ foreach($modules as $module)
 			require_once($runallfrontfile);
 	}
 }
-if (!($_SERVER['SERVER_NAME'] == "127.0.0.1" or $_SERVER['SERVER_NAME'] == "localhost" or $_SERVER['SERVER_NAME'] == "gcms.dev" ))
+/* if (!($_SERVER['SERVER_NAME'] == "127.0.0.1" or $_SERVER['SERVER_NAME'] == "localhost" or $_SERVER['SERVER_NAME'] == "gcms.dev" ))
 {
     //analyse
     require_once(__COREROOT__."/libs/gapi/gapi.class.php");
@@ -58,4 +58,4 @@ if (!($_SERVER['SERVER_NAME'] == "127.0.0.1" or $_SERVER['SERVER_NAME'] == "loca
     {
         $GLOBALS['GCMS']->assign('static_error', true);
     }
-}
+} */
