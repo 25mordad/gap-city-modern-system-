@@ -63,9 +63,9 @@ CREATE TABLE `gcms_ticketprice` (
   `id` bigint(20) NOT NULL,
   `id_ticket` bigint(20) NOT NULL,
   `name` varchar(255) NOT NULL,
-  `price` decimal(20,0) NOT NULL,
-  `bookingfee` decimal(20,0) NOT NULL,
-  `offer` decimal(20,0) NOT NULL
+  `price` decimal(20,2) NOT NULL,
+  `bookingfee` decimal(20,2) NOT NULL,
+  `offer` decimal(20,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 			";

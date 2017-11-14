@@ -26,7 +26,7 @@ $GLOBALS['GCMS_DB']->escape("test connection");
 //i18n
 $GLOBALS['GCMS']->registerFilter('output', "i18n_substitute_text");
 //default timezone
-date_default_timezone_set("Asia/Tehran");
+date_default_timezone_set('Europe/Madrid');
 //Smarty
 $GLOBALS['GCMS']->template_dir=__ROOT__."/web/".__THEMPLATE__;
 $GLOBALS['GCMS']->compile_dir=__COREROOT__."/html/templates_c/";

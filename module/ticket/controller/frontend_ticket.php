@@ -28,6 +28,14 @@ function show($id)
 	if (!$Ticket)
 		exit(header("Location: /"));
 		$GLOBALS['GCMS']->assign('Ticket', $Ticket);
+		
+	//showtime
+	$tickettimes = Tickettime::get(array("id_ticket" => $id), true,$order=array("by" => "hour", "sort" => " ASC" ));
+	$GLOBALS['GCMS']->assign('Tickettimes', $tickettimes);
+	
+	//ticketprice
+	$ticketprices = Ticketprice::get(array("id_ticket" => $id), true);
+	$GLOBALS['GCMS']->assign('Ticketprices', $ticketprices);
 }
 
 
