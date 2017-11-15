@@ -36,6 +36,11 @@ function show($id)
 	//ticketprice
 	$ticketprices = Ticketprice::get(array("id_ticket" => $id), true);
 	$GLOBALS['GCMS']->assign('Ticketprices', $ticketprices);
+	
+	///get feature
+	$ticketFeature= Ticketfeature::get(array("id_ticket" => $id),true);
+	$GLOBALS['GCMS']->assign('ticketFeature', $ticketFeature);
+	
 }
 
 
